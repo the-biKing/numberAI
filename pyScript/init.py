@@ -4,9 +4,9 @@ import numpy as np
 matrix = np.random.rand(4096, 128)
 
 # Save to a text file
-np.savetxt("H1.txt", matrix)
+np.savetxt("./pyScript/hiddenLayer/H1.txt", matrix)
 
 matrix = np.random.rand(128, 10)
 
 # Save to a text file
-np.savetxt("H2.txt", matrix)
+np.savetxt("./pyScript/hiddenLayer/H2.txt", matrix)
