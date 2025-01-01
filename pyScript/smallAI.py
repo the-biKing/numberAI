@@ -5,10 +5,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # Generate a 4096x128 matrix with random numbers
-matrix = np.random.rand(256, 32)
-
-# Save to a text file
-np.savetxt("./pyScript/hiddenLayer/H1.txt", matrix)
+H1 = torch.randn(256, 32, device=device, dtype=torch.float32)
 
 matrix = np.random.rand(32, 10)
 
@@ -64,14 +61,14 @@ for k in range(500):
             current_loss = loss()
 
             # Adjust H1[i][j] based on a small step size
-            H1[i][j] += 0.01
+            H1[i,j] += 0.01
             firstmulti()
             secondmulti()
 
             # Calculate new loss after the change
             new_loss = loss()
-            H1[i][j] -= 0.01
-            H1[i][j] -= ((new_loss-current_loss)/0.01)*LR
+            H1[i,j] -= 0.01
+            H1[i,j] -= ((new_loss-current_loss)/0.01)*LR
 
             # Save the matrix after every update (optional, depends on your need)
             np.savetxt("./pyScript/hiddenLayer/H1.txt", H1, fmt='%f')
