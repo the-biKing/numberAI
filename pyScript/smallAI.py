@@ -21,6 +21,8 @@ def firstmulti(H1):   #function for first multiplication
         I = I.flatten()
         # Read the contents of the files
         M = np.dot(H1.T, I)
+        # Apply ReLU activation function (anything below 0 becomes 0)
+        M = np.maximum(0, M)
         np.savetxt(f"C:/Users/jesse/Documents/GitHub/numberAI/pyScript/hiddenLayer/M{i}.txt", M)
 
 def secondmulti(H2):  #function for second multiplication

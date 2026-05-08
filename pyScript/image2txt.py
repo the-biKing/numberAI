@@ -3,8 +3,8 @@ import numpy as np
 import os
 
 # Directories
-input_folder = "./pyScript/inputImage/"
-output_folder = "./pyScript/inputText/"
+input_folder = "./pyScript/inputImageNew/"
+output_folder = "./pyScript/inputTextNew/"
 
 # Ensure the output folder exists
 os.makedirs(output_folder, exist_ok=True)
