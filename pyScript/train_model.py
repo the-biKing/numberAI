@@ -61,6 +61,14 @@ def get_loss():
     # Sum of Euclidean distances for each example
     return np.sum(np.sqrt(np.sum((A_vals - expected_answers)**2, axis=1)))
 
+def get_entropy():
+    # Convert A_vals to probabilities using softmax for numerical stability
+    exp_A = np.exp(A_vals - np.max(A_vals, axis=1, keepdims=True))
+    probs = exp_A / np.sum(exp_A, axis=1, keepdims=True)
+    # Calculate Shannon entropy (base e). Lower means more confident.
+    entropy = -np.sum(probs * np.log(probs + 1e-9), axis=1)
+    return np.mean(entropy)
+
 def save_model(H1_mat, H2_mat):
     np.savetxt(H1_path, H1_mat, fmt='%f')
     np.savetxt(H2_path, H2_mat, fmt='%f')
@@ -68,14 +76,27 @@ def save_model(H1_mat, H2_mat):
 
 # Initialize dynamic plot
 plt.ion()
-fig, ax = plt.subplots()
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 10))
+
+# Subplot 1: Loss
 loss_history = []
-line, = ax.plot(loss_history, label='Total Loss', color='b', linewidth=2)
-ax.set_xlabel("Iteration (k)")
-ax.set_ylabel("Loss")
-ax.set_title("Training Loss (Dynamic)")
-ax.grid(True)
-ax.legend()
+line_loss, = ax1.plot(loss_history, label='Total Loss', color='b', linewidth=2)
+ax1.set_xlabel("Iteration (k)")
+ax1.set_ylabel("Loss")
+ax1.set_title("Training Loss")
+ax1.grid(True)
+ax1.legend()
+
+# Subplot 2: Entropy
+entropy_history = []
+line_entropy, = ax2.plot(entropy_history, label='Mean Entropy', color='r', linewidth=2)
+ax2.set_xlabel("Iteration (k)")
+ax2.set_ylabel("Entropy")
+ax2.set_title("Prediction Confidence (Lower = More Confident)")
+ax2.grid(True)
+ax2.legend()
+
+plt.tight_layout()
 plt.show(block=False)
 
 best_H1 = copy.deepcopy(H1)
@@ -127,17 +148,26 @@ try:
                 adjust = ((new_loss - current_loss) / 0.01) * LR_H2
                 H2[i][j] -= adjust
 
-        # Calculate final loss for this iteration
+        # Calculate final loss and entropy for this iteration
         forward_pass(H1, H2)
         iter_loss = get_loss()
-        print(f"Iteration {k}, Loss: {iter_loss:.6f}")
+        iter_entropy = get_entropy()
+        print(f"Iteration {k}, Loss: {iter_loss:.6f}, Entropy: {iter_entropy:.6f}")
         
-        # Update plot
+        # Update Loss plot
         loss_history.append(iter_loss)
-        line.set_ydata(loss_history)
-        line.set_xdata(range(len(loss_history)))
-        ax.relim()
-        ax.autoscale_view()
+        line_loss.set_ydata(loss_history)
+        line_loss.set_xdata(range(len(loss_history)))
+        ax1.relim()
+        ax1.autoscale_view()
+        
+        # Update Entropy plot
+        entropy_history.append(iter_entropy)
+        line_entropy.set_ydata(entropy_history)
+        line_entropy.set_xdata(range(len(entropy_history)))
+        ax2.relim()
+        ax2.autoscale_view()
+        
         # Pause to let the plot update
         plt.pause(0.01)
         

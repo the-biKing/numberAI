@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 
-def run_inference(image_path, H1, H2):
+def run_inference(image_path, H1, H2, quiet=False):
     if not os.path.exists(image_path):
         print(f"Error: Image {image_path} not found.")
         return
@@ -45,8 +45,10 @@ def run_inference(image_path, H1, H2):
     A = np.dot(H2.T, M)
 
     predicted_digit = np.argmax(A)
-    print(f"\n--- Output for {os.path.basename(image_path)} ---")
-    print(f"=> Predicted Digit: {predicted_digit}")
+    if not quiet:
+        print(f"\n--- Output for {os.path.basename(image_path)} ---")
+        print(f"=> Predicted Digit: {predicted_digit}")
+    return predicted_digit
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -61,17 +63,39 @@ if __name__ == "__main__":
     H1 = np.loadtxt(h1_path)
     H2 = np.loadtxt(h2_path)
 
-    # If an argument is provided, use that. Otherwise default to all images in verify directory.
+    # If an argument is provided, use that. Otherwise evaluate both datasets.
     if len(sys.argv) > 1:
-        run_inference(sys.argv[1], H1, H2)
+        run_inference(sys.argv[1], H1, H2, quiet=False)
     else:
         verify_dir = os.path.join(script_dir, "verify")
-        if not os.path.exists(verify_dir):
-            print(f"Error: Default directory {verify_dir} not found.")
-            sys.exit(1)
+        train_dir = os.path.join(script_dir, "inputImage")
+        
+        def evaluate_directory(directory, dataset_name):
+            if not os.path.exists(directory):
+                print(f"\nError: Directory {directory} not found.")
+                return
             
-        print(f"Running inference on all images in {verify_dir}:")
-        for filename in os.listdir(verify_dir):
-            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
-                img_path = os.path.join(verify_dir, filename)
-                run_inference(img_path, H1, H2)
+            print(f"\nEvaluating {dataset_name} dataset in {os.path.basename(directory)}/...")
+            correct = 0
+            total = 0
+            for filename in os.listdir(directory):
+                if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                    img_path = os.path.join(directory, filename)
+                    predicted = run_inference(img_path, H1, H2, quiet=True)
+                    if predicted is not None:
+                        # Extract true label from filename (e.g., '0.png' -> 0, '0_1.PNG' -> 0)
+                        true_label_str = filename.split('_')[0].split('.')[0]
+                        if true_label_str.isdigit():
+                            true_label = int(true_label_str)
+                            total += 1
+                            if predicted == true_label:
+                                correct += 1
+                                
+            if total > 0:
+                accuracy = (correct / total) * 100
+                print(f"[{dataset_name} Dataset] Accuracy: {correct}/{total} ({accuracy:.2f}%)")
+            else:
+                print(f"[{dataset_name} Dataset] No valid images found.")
+
+        evaluate_directory(train_dir, "Training")
+        evaluate_directory(verify_dir, "Verify")
