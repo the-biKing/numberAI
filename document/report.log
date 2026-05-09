@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.13)  9 MAY 2026 11:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.13)  9 MAY 2026 23:26
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -322,48 +322,37 @@ Package hyperref Info: Link coloring OFF on input line 15.
 
  [1
 
-{C:/Users/joshh/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-<./image/architecturev1.png, id=119, 1014.79124pt x 405.515pt>
-File: ./image/architecturev1.png Graphic file (type png)
-<use ./image/architecturev1.png>
-Package pdftex.def Info: ./image/architecturev1.png  used on input line 42.
-(pdftex.def)             Requested size: 362.37569pt x 144.80344pt.
- [2
+{C:/Users/joshh/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2]
+<./image/trainV1.png, id=131, 578.16pt x 722.7pt>
+File: ./image/trainV1.png Graphic file (type png)
+<use ./image/trainV1.png>
+Package pdftex.def Info: ./image/trainV1.png  used on input line 92.
+(pdftex.def)             Requested size: 362.37569pt x 452.96558pt.
+ [3] [4
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.55 
-      <./image/architecturev1.png>] [3]
-<./image/trainV1.png, id=141, 578.16pt x 722.7pt>
-File: ./image/trainV1.png Graphic file (type png)
-<use ./image/trainV1.png>
-Package pdftex.def Info: ./image/trainV1.png  used on input line 106.
-(pdftex.def)             Requested size: 362.37569pt x 452.96558pt.
- [4] [5
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.121 \subsection
-                 {Distillation} <./image/trainV1.png>] [6] (report.aux)
+l.102 
+       <./image/trainV1.png>] [5] [6] (report.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: E1DB8EE9B3BFBD1B6D5C5558A6983469;3502.
+(rerunfilecheck)             Checksum: 5E7E81808C8BE5D03BA9F26931FBA172;4106.
  ) 
 Here is how much of TeX's memory you used:
- 9778 strings out of 467871
- 151235 string characters out of 5418376
- 578975 words of memory out of 5000000
- 38520 multiletter control sequences out of 15000+600000
- 636096 words of font info for 69 fonts, out of 8000000 for 9000
+ 9771 strings out of 467871
+ 151115 string characters out of 5418376
+ 579922 words of memory out of 5000000
+ 38512 multiletter control sequences out of 15000+600000
+ 635927 words of font info for 68 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,6n,79p,629b,517s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\joshh\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on report.pdf (6 pages, 242491 bytes).
+ 75i,6n,79p,629b,521s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\joshh\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on report.pdf (6 pages, 221490 bytes).
 PDF statistics:
- 218 PDF objects out of 1000 (max. 8388607)
- 33 named destinations out of 1000 (max. 500000)
- 179 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 217 PDF objects out of 1000 (max. 8388607)
+ 35 named destinations out of 1000 (max. 500000)
+ 182 words of extra memory for PDF output out of 10000 (max. 10000000)
 

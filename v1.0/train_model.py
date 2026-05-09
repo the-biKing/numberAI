@@ -9,7 +9,7 @@ inputs = []
 expected_answers = []
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-input_dir = os.path.join(script_dir, "inputText")
+input_dir = os.path.join(script_dir, "..", "inputText")
 
 print("Loading training data...")
 for filename in os.listdir(input_dir):
@@ -22,7 +22,7 @@ for filename in os.listdir(input_dir):
     digit_str = filename.split('_')[0].split('.')[0]
     digit = int(digit_str)
     
-    EA_path = os.path.join(script_dir, "expectedAnswer", f"EA{digit}.txt")
+    EA_path = os.path.join(script_dir, "..", "expectedAnswer", f"EA{digit}.txt")
     
     # Load input images (1D array of 256 size)
     I = np.loadtxt(I_path).flatten()

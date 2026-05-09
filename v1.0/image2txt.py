@@ -3,8 +3,9 @@ import numpy as np
 import os
 
 # Directories
-input_folder = "./pyScript/inputImageNew/"
-output_folder = "./pyScript/inputTextNew/"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+input_folder = os.path.join(script_dir, "..", "inputImage")
+output_folder = os.path.join(script_dir, "..", "inputText")
 
 # Ensure the output folder exists
 os.makedirs(output_folder, exist_ok=True)

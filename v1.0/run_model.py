@@ -67,8 +67,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         run_inference(sys.argv[1], H1, H2, quiet=False)
     else:
-        verify_dir = os.path.join(script_dir, "verify")
-        train_dir = os.path.join(script_dir, "inputImage")
+        verify_dir = os.path.join(script_dir, "..", "verify")
+        train_dir = os.path.join(script_dir, "..", "inputImage")
         
         def evaluate_directory(directory, dataset_name):
             if not os.path.exists(directory):

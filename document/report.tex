@@ -34,72 +34,58 @@ The project is divided into two main phases:
     \item \textbf{Phase 2: Embedded Systems Deployment.} To run the developed classification model on embedded systems with limited resources (e.g., Arduino). This requires applying model compression techniques such as \textit{quantization} and \textit{distillation} to reduce memory footprint and computational load.
 \end{itemize}
 
-\section{System Architecture}
-The system architecture of numberAI is built upon a custom pipeline designed to handle raw images, process them into matrices, apply matrix multiplication, and verify the outputs. 
+\section{Phase 1: Architecture Iterations}
+As the project employs a trial-and-error discovery method, the model architecture and training methodology evolved chronologically through multiple versions. This section documents the progression of the model, detailing the problems encountered in each version and the subsequent upgrades.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{./image/architecturev1.png}
-    \caption{System Architecture of numberAI}
-    \label{fig:architecture}
-\end{figure}
+\subsection{Version 0: Initial Attempt}
+The very first attempt (\textbf{Version 0}) served as a baseline to test the pure matrix multiplication concept without any additional complexity.
 
-
-\subsection{Data Processing Pipeline}
-The input processing pipeline involves converting raw number images into a format suitable for matrix multiplication. 
-% TODO: Elaborate on the specific image preprocessing steps (e.g., grayscaling, normalizing).
-The script \texttt{image2txt.py} is responsible for converting input images (stored in \texttt{inputImage}) into a text-based matrix representation (stored in \texttt{inputText}). These processed inputs are then matched against their corresponding expected outputs (stored in \texttt{expectedAnswer}).
-
-\subsection{Model Structure (Hidden Layers)}
-Instead of a fixed neural network topology, the model's architecture is dynamic. The structure consists of customizable hidden layers whose weights and biases are stored in the \texttt{hiddenLayer} directory. The exact dimensions of these matrices are subject to experimentation and tuning during the training phase.
-
-\section{Methodology}
-\subsection{Inference (Forward Pass)}
-The core inference logic is implemented in \texttt{run\_model.py}. The process relies purely on sequential matrix multiplications of the input text data with the matrices defined in the hidden layers to yield a final categorization prediction.
-
-\subsection{Training via Trial and Error}
-Unlike traditional backpropagation implementations, the training process handled by \texttt{train\_model.py} employs a numerical gradient estimation approach, often framed as trial-and-error. 
-
-The loss function used to evaluate the model's performance calculates the sum of the Euclidean distances between the actual output vector ($\mathbf{A}$) and the expected output vector ($\mathbf{EA}$) across all 10 training samples:
-\begin{equation}
-\mathbf{Loss} = \sum_{k=0}^{9} \sqrt{\sum_{n=0}^{9} \left( A_{k,n} - EA_{k,n} \right)^2}
-\end{equation}
-Where $A_{k}$ is the length-10 output vector for the $k$-th input number image, and $EA_{k}$ is the corresponding expected answer.
-
-To adjust the weights and decrease the loss, the algorithm perturbs a specific weight (e.g., $H1_{m,n}$) by a small \textit{change} and observes the new loss ($\mathbf{Loss}_{o+\text{change}}$). The weight is then updated using the numerical gradient approximation:
-\begin{equation}
-H_{m,n} := H_{m,n} - \left( \frac{\mathbf{Loss}_{o+\text{change}} - \mathbf{Loss}_{o}}{\text{change}} \right) \cdot \alpha
-\end{equation}
-Where $\mathbf{Loss}_{o}$ is the original loss, and the learning rate $\alpha$ is scaled proportionally to the loss. This heuristic method bypasses complex calculus by explicitly calculating the finite difference to approximate the derivative.
-
-\subsection{Model Reset}
-To facilitate repeated experimentation, \texttt{reset\_model.py} provides the functionality to re-initialize the matrix weights using random uniform distributions (\texttt{np.random.rand}). This allows the trial-and-error process to start fresh from different initial states.
-
-Upon resetting the two primary hidden layers (\texttt{H1} of size $256 \times 32$ and \texttt{H2} of size $32 \times 10$), the initial Shannon entropy of the randomly generated weights was recorded to establish a baseline before training:
+\subsubsection{Architecture and Methodology}
 \begin{itemize}
-    \item \textbf{H1 Entropy:} 6.633968859734219
-    \item \textbf{H2 Entropy:} 6.45341914045563
+    \item \textbf{Linear Topology}: The network consisted of two weight matrices ($H1$ and $H2$) with no activation functions between them.
+    \item \textbf{I/O Inefficiency}: The training loop read and wrote the matrices to the disk at every single iteration.
 \end{itemize}
-Tracking this entropy provides insight into the information density and randomness of the network before it adapts through trial-and-error iterations.
 
-\section{Architecture Iterations}
-As the project employs a trial-and-error discovery method, the model architecture is expected to evolve through multiple versions as optimal matrix sizes and structures are found.
+\subsubsection{Results and Failures}
+Version 0 was ultimately unsuccessful due to several critical flaws:
+\begin{itemize}
+    \item \textbf{Linearity Collapse}: Without a non-linear activation function, the two-layer network was mathematically pointless. Sequential linear matrix multiplications can be collapsed into a single matrix, meaning no deep representations were being learned.
+    \item \textbf{Performance Bottleneck}: Reading and writing matrices to the disk at every step made the training process extremely slow.
+    \item \textbf{Gradient Explosion}: The training never finished because the loss would eventually hit NaN due to gradient explosions. Consequently, no usable model was produced for testing.
+\end{itemize}
 
-\subsection{Version 1.0 Architecture}
-The initial structure (\textbf{Version 1.0}) consists of the following components:
+\subsection{Version 1.0: Non-Linearity and Optimization}
+To address the fatal flaws of Version 0, several major upgrades were introduced in \textbf{Version 1.0}.
+
+\subsubsection{Architecture Upgrades}
+The structure for Version 1.0 introduced non-linearity:
 \begin{itemize}
     \item \textbf{Input Layer}: Flattened representation of the input image.
-    \item \textbf{Hidden Layers}: Two primary weight matrices ($H1$ and $H2$), where dimensions were iteratively tested (e.g., $256 \times 32 \to 32 \times 10$, and later $4096 \times 128 \to 128 \times 10$).
+    \item \textbf{Hidden Layers}: Two primary weight matrices ($H1$ and $H2$). Dimensions were iteratively tested (e.g., $256 \times 32 \to 32 \times 10$, and later $4096 \times 128 \to 128 \times 10$).
+    \item \textbf{Activation Function}: ReLU (Rectified Linear Unit) was introduced between the hidden layers to prevent the linearity collapse seen in Version 0.
     \item \textbf{Output Layer}: Vector of size $10 \times 1$, representing the classification scores for digits 0-9.
 \end{itemize}
 
+\subsubsection{Methodology Upgrades}
+\begin{itemize}
+    \item \textbf{Optimized I/O}: The matrix reading and writing methods were optimized to keep weights in memory during the training loop, massively speeding up training.
+    \item \textbf{Numerical Gradient Training}: The loss function calculates the sum of Euclidean distances between the actual output vector ($\mathbf{A}$) and expected output ($\mathbf{EA}$):
+    \begin{equation}
+    \mathbf{Loss} = \sum_{k=0}^{9} \sqrt{\sum_{n=0}^{9} \left( A_{k,n} - EA_{k,n} \right)^2}
+    \end{equation}
+    The weight was then updated using a numerical gradient approximation (trial-and-error):
+    \begin{equation}
+    H_{m,n} := H_{m,n} - \left( \frac{\mathbf{Loss}_{o+\text{change}} - \mathbf{Loss}_{o}}{\text{change}} \right) \cdot \alpha
+    \end{equation}
+\end{itemize}
+
 \subsubsection{Version 1.0 Training Results}
-After training the Version 1.0 architecture via the numerical gradient approach, a measurable drop in Shannon entropy for the weight matrices was observed:
+After training the Version 1.0 architecture, a measurable drop in Shannon entropy for the weight matrices was observed:
 \begin{itemize}
     \item \textbf{Pre-training Entropy}: $H1 \approx 6.63$, $H2 \approx 6.45$
     \item \textbf{Post-training Entropy}: $H1 \approx 3.05$, $H2 \approx 3.23$
 \end{itemize}
-This lower entropy strongly indicates that the trial-and-error process successfully converged on structured patterns within the dataset rather than remaining random. A visualization of the training loss can be seen below:
+This lower entropy indicates that the trial-and-error process successfully converged on structured patterns within the dataset. A visualization of the training loss can be seen below:
 
 \begin{figure}[H]
     \centering
@@ -108,9 +94,35 @@ This lower entropy strongly indicates that the trial-and-error process successfu
     \label{fig:trainV1}
 \end{figure}
 
-\subsection{Version 2.0 Architecture (Planned)}
-% TODO: Document Version 2.0 changes (e.g., new matrix sizes, added activation functions, changes in topology) once implemented.
-[Placeholder: Describe changes made in Version 2.0 to improve upon the shortcomings of Version 1.0. For example, adjusting matrix sizes or altering the pipeline to fix accuracy bottlenecks.]
+\textbf{Overfitting Discovery:}
+While the training process converged, evaluating the model revealed a severe case of overfitting. The model successfully categorized all images in the training dataset, achieving an accuracy of 100.00\% (100/100). However, when exposed to new, unseen number images from the verification dataset, it completely failed, yielding an accuracy of 0.00\% (0/10). This indicates that the Version 1.0 architecture effectively memorized the specific pixels of the training data but failed to generalize the underlying visual features of the numbers.
+
+\subsection{Version 1.1: Vectorized Blame Assignment (Backpropagation)}
+To address the severe overfitting and slow training times observed in Version 1.0, the training methodology was significantly overhauled in \textbf{Version 1.1}. The numerical gradient approach (trial-and-error finite difference) was replaced with a heavily optimized, mathematically grounded blame assignment method.
+
+\subsubsection{Methodology Upgrades}
+The adjustment logic was optimized using vectorized blame assignment (backpropagation):
+\begin{itemize}
+    \item \textbf{H2 Adjustment}: The error vector is multiplied by the transposed middle neuron vector (from $H1$) to compute the gradient for all parameters of $H2$ simultaneously.
+    \item \textbf{H1 Adjustment}: The error vector is multiplied by the transposed $H2$ matrix, passed through the derivative of the ReLU function, and then multiplied by the transposed input vector ($I$). This allows the simultaneous adjustment of all $H1$ parameters.
+\end{itemize}
+This vectorized approach eliminates the need to perturb weights one-by-one, replacing millions of individual forward passes with a single efficient backward pass.
+
+\subsubsection{Version 1.1 Training Results}
+The implementation of vectorized blame assignment yielded two major breakthroughs:
+\begin{enumerate}
+    \item \textbf{Blazing Fast Training}: The training time was drastically reduced to approximately 30.6 seconds (down from over 15 minutes in Version 1.0), completing 500 iterations over the entire dataset with ease.
+    \item \textbf{Generalization over Memorization}: The updated weight adjustment logic successfully prevented the model from merely memorizing pixels. Evaluation metrics showed:
+    \begin{itemize}
+        \item \textbf{Training Dataset Accuracy}: 100.00\% (100/100)
+        \item \textbf{Verification Dataset Accuracy}: 60.00\% (6/10)
+    \end{itemize}
+\end{enumerate}
+While 60\% accuracy on the verification set indicates there is still room for improvement, it definitively proves that the Version 1.1 network is finally learning to generalize visual patterns rather than overfitting the training data.
+
+\subsection{Version 2.0 (Planned)}
+% TODO: Document Version 2.0 changes (e.g., regularization, dropout, different network topology) to address the overfitting.
+[Placeholder: Describe changes made in Version 2.0 to improve upon the shortcomings of Version 1.1.]
 
 \section{Phase 2: Embedded Systems Optimization}
 % TODO: Fill in the findings once Phase 2 is underway.
