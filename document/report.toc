@@ -1,22 +1,32 @@
-\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
-\contentsline {subsection}{\numberline {1.1}Project Motivation}{2}{subsection.1.1}%
-\contentsline {subsection}{\numberline {1.2}Goals and Phases}{2}{subsection.1.2}%
-\contentsline {section}{\numberline {2}Phase 1: Architecture Iterations}{2}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Version 0: Initial Attempt}{2}{subsection.2.1}%
-\contentsline {subsubsection}{\numberline {2.1.1}Architecture and Methodology}{2}{subsubsection.2.1.1}%
-\contentsline {subsubsection}{\numberline {2.1.2}Results and Failures}{2}{subsubsection.2.1.2}%
-\contentsline {subsection}{\numberline {2.2}Version 1.0: Non-Linearity and Optimization}{3}{subsection.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.1}Architecture Upgrades}{3}{subsubsection.2.2.1}%
-\contentsline {subsubsection}{\numberline {2.2.2}Methodology Upgrades}{3}{subsubsection.2.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.3}Version 1.0 Training Results}{3}{subsubsection.2.2.3}%
-\contentsline {subsection}{\numberline {2.3}Version 1.1: Vectorized Blame Assignment (Backpropagation)}{5}{subsection.2.3}%
-\contentsline {subsubsection}{\numberline {2.3.1}Methodology Upgrades}{5}{subsubsection.2.3.1}%
-\contentsline {subsubsection}{\numberline {2.3.2}Version 1.1 Training Results}{5}{subsubsection.2.3.2}%
-\contentsline {subsection}{\numberline {2.4}Version 2.0 (Planned)}{5}{subsection.2.4}%
-\contentsline {section}{\numberline {3}Phase 2: Embedded Systems Optimization}{5}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Quantization}{6}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Distillation}{6}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Discoveries and Challenges}{6}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Matrix Size Optimization}{6}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Trial and Error Efficiency}{6}{subsection.4.2}%
-\contentsline {section}{\numberline {5}Conclusion}{6}{section.5}%
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Project Motivation}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Goals and Phases}{3}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Phase 1: Architecture Iterations}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Version 0: Initial Attempt}{3}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Architecture and Methodology}{3}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Results and Failures}{4}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}Points to Solve in Next Iteration}{4}{subsubsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.2}Version 1.0: Non-Linearity and Optimization}{4}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Architecture Upgrades}{4}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Methodology Upgrades}{5}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Version 1.0 Training Results}{5}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Points to Solve in Next Iteration}{6}{subsubsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.3}Version 1.1: Vectorized Blame Assignment (Backpropagation)}{7}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Methodology Upgrades}{7}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Version 1.1 Training Results}{7}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Points to Solve in Next Iteration}{8}{subsubsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.4}Version 1.2: Improved Dataset Generalization}{9}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Methodology and Results}{9}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Points to Solve in Next Iteration}{9}{subsubsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.5}Version 2.0: Introduction of Convolution}{9}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}Architecture Upgrades}{9}{subsubsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {2.5.2}Version 2.0 Training Results}{9}{subsubsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.3}Points to Solve in Next Iteration}{10}{subsubsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.6}Version 2.1 (Planned): PyTorch Optimization}{10}{subsection.2.6}%
+\contentsline {section}{\numberline {3}Phase 2: Embedded Systems Optimization}{10}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Quantization}{10}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Distillation}{10}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Discoveries and Challenges}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Matrix Size Optimization}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Trial and Error Efficiency}{10}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Conclusion}{11}{section.5}%

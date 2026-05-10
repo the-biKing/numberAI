@@ -41,6 +41,12 @@ As the project employs a trial-and-error discovery method, the model architectur
 The very first attempt (\textbf{Version 0}) served as a baseline to test the pure matrix multiplication concept without any additional complexity.
 
 \subsubsection{Architecture and Methodology}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./image/architectureV0.png}
+    \caption{Version 0 Architecture}
+    \label{fig:architectureV0}
+\end{figure}
 \begin{itemize}
     \item \textbf{Linear Topology}: The network consisted of two weight matrices ($H1$ and $H2$) with no activation functions between them.
     \item \textbf{I/O Inefficiency}: The training loop read and wrote the matrices to the disk at every single iteration.
@@ -52,6 +58,12 @@ Version 0 was ultimately unsuccessful due to several critical flaws:
     \item \textbf{Linearity Collapse}: Without a non-linear activation function, the two-layer network was mathematically pointless. Sequential linear matrix multiplications can be collapsed into a single matrix, meaning no deep representations were being learned.
     \item \textbf{Performance Bottleneck}: Reading and writing matrices to the disk at every step made the training process extremely slow.
     \item \textbf{Gradient Explosion}: The training never finished because the loss would eventually hit NaN due to gradient explosions. Consequently, no usable model was produced for testing.
+\end{itemize}
+
+\subsubsection{Points to Solve in Next Iteration}
+\begin{itemize}
+    \item Introduce a non-linear activation function (e.g., ReLU) to prevent linearity collapse and enable deep feature learning.
+    \item Optimize the matrix disk read/write methodology to eliminate the severe I/O performance bottleneck during training.
 \end{itemize}
 
 \subsection{Version 1.0: Non-Linearity and Optimization}
@@ -97,6 +109,13 @@ This lower entropy indicates that the trial-and-error process successfully conve
 \textbf{Overfitting Discovery:}
 While the training process converged, evaluating the model revealed a severe case of overfitting. The model successfully categorized all images in the training dataset, achieving an accuracy of 100.00\% (100/100). However, when exposed to new, unseen number images from the verification dataset, it completely failed, yielding an accuracy of 0.00\% (0/10). This indicates that the Version 1.0 architecture effectively memorized the specific pixels of the training data but failed to generalize the underlying visual features of the numbers.
 
+\subsubsection{Points to Solve in Next Iteration}
+\begin{itemize}
+    \item Address the severe \textbf{overfitting} to ensure the model generalizes to unseen data instead of merely memorizing the training dataset.
+    \item Improve \textbf{training efficiency}. The numerical gradient approach is far too slow (taking upwards of 15 minutes) for a model of this size.
+    \item \textbf{Loss Function Singularity}: The Euclidean distance loss function uses a square root. Its derivative places the square root in the denominator, meaning as the loss approaches zero, it causes a divide-by-zero error leading to NaN gradient explosions. A loss function without this singularity (such as Mean Squared Error) is required.
+\end{itemize}
+
 \subsection{Version 1.1: Vectorized Blame Assignment (Backpropagation)}
 To address the severe overfitting and slow training times observed in Version 1.0, the training methodology was significantly overhauled in \textbf{Version 1.1}. The numerical gradient approach (trial-and-error finite difference) was replaced with a heavily optimized, mathematically grounded blame assignment method.
 
@@ -118,11 +137,62 @@ The implementation of vectorized blame assignment yielded two major breakthrough
         \item \textbf{Verification Dataset Accuracy}: 60.00\% (6/10)
     \end{itemize}
 \end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./image/trainv1.1.png}
+    \caption{Version 1.1 Training Loss Progression}
+    \label{fig:trainv1.1}
+\end{figure}
+
 While 60\% accuracy on the verification set indicates there is still room for improvement, it definitively proves that the Version 1.1 network is finally learning to generalize visual patterns rather than overfitting the training data.
 
-\subsection{Version 2.0 (Planned)}
-% TODO: Document Version 2.0 changes (e.g., regularization, dropout, different network topology) to address the overfitting.
-[Placeholder: Describe changes made in Version 2.0 to improve upon the shortcomings of Version 1.1.]
+\subsubsection{Points to Solve in Next Iteration}
+\begin{itemize}
+    \item \textbf{Improve Generalization}: The 60\% verification accuracy is promising but leaves significant room for improvement. The next version should focus on increasing this metric.
+    \item \textbf{Dynamic Stopping Condition}: Currently, training terminates after a hardcoded 500 iterations without evaluating the model's actual convergence state. The next version needs a dynamic stopping mechanism based on metrics such as Shannon Entropy, the slope of the loss, or the raw loss value itself.
+    \item \textbf{Adaptive Learning Rate}: The learning rate parameters were chosen via arbitrary guessing. Incorrect learning rates caused several initial training attempts of Version 1.1 to fail. A systematic or adaptive method for determining the optimal learning rate is necessary for stable and reliable training.
+\end{itemize}
+
+\subsection{Version 1.2: Improved Dataset Generalization}
+To address the generalization issues identified in Version 1.1, the training dataset was fundamentally upgraded in \textbf{Version 1.2}. The custom, small-scale dataset was replaced with the standardized MNIST dataset.
+
+\subsubsection{Methodology and Results}
+By training the model on the much larger and highly varied MNIST dataset, the model was exposed to a far wider array of handwriting styles. This significantly improved the model's ability to extract general features rather than memorizing specific pixels.
+\begin{itemize}
+    \item \textbf{Generalization Success}: The model achieved a highly promising \textbf{94\% accuracy} on the verification set, resolving the core overfitting issue from earlier versions.
+\end{itemize}
+
+\subsubsection{Points to Solve in Next Iteration}
+\begin{itemize}
+    \item \textbf{Shifted Number Problem}: While the model performs well on centered digits, its reliance purely on fully connected dense layers means it is highly sensitive to spatial translation. If a number is shifted off-center, the model struggles to categorize it accurately. A mechanism to introduce translation invariance is required.
+\end{itemize}
+
+\subsection{Version 2.0: Introduction of Convolution}
+To solve the shifted number problem and reduce the overall model size, \textbf{Version 2.0} introduced a custom convolution operation before the fully connected layers.
+
+\subsubsection{Architecture Upgrades}
+\begin{itemize}
+    \item \textbf{Convolutional Kernel}: A single $3 \times 3$ learnable kernel ($K$) was introduced. The input image ($28 \times 28$) is convolved with this kernel to produce a feature map.
+    \item \textbf{Max Pooling}: A $2 \times 2$ max pooling layer was implemented to downsample the feature map, providing the desired translation invariance and reducing the dimensionality of the data before it enters the dense layers ($H1$ and $H2$).
+\end{itemize}
+
+\subsubsection{Version 2.0 Training Results}
+The introduction of the convolutional kernel successfully enabled the model to handle shifted numbers, and it maintained an accuracy comparable to Version 1.2. However, this architecture introduced new bottlenecks:
+\begin{itemize}
+    \item \textbf{Computational Overhead}: The custom Python implementation of the convolution and pooling operations significantly increased the training time compared to the pure matrix multiplication of Version 1.2.
+    \item \textbf{Feature Limitation}: Using only a single convolution kernel restricted the model to focusing on just one specific spatial characteristic (e.g., a single edge type or texture), preventing it from learning rich, multi-dimensional features.
+\end{itemize}
+
+\subsubsection{Points to Solve in Next Iteration}
+\begin{itemize}
+    \item \textbf{Optimize Training Speed}: The custom numpy convolution loops are too slow. A highly optimized framework backend is necessary for practical training times.
+    \item \textbf{Expand Feature Extraction}: The architecture must support multiple convolution kernels simultaneously to capture diverse features (e.g., horizontal edges, vertical edges, curves).
+\end{itemize}
+
+\subsection{Version 2.1 (Planned): PyTorch Optimization}
+% TODO: Document Version 2.1 changes
+[Placeholder: Describe the transition to the PyTorch framework. Detail how leveraging PyTorch allows for the efficient use of multiple convolutional kernels and accelerates training times, addressing the bottlenecks from Version 2.0.]
 
 \section{Phase 2: Embedded Systems Optimization}
 % TODO: Fill in the findings once Phase 2 is underway.

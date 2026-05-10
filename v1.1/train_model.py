@@ -5,6 +5,8 @@ import os
 import sys
 import time
 
+RESET = True
+
 # 1. Preload everything to avoid disk I/O bottleneck
 inputs = []
 expected_answers = []
@@ -33,10 +35,13 @@ for filename in os.listdir(input_dir):
     EA = np.loadtxt(EA_path)
     expected_answers.append(EA)
 
-inputs = np.array(inputs) / 255.0 #normalize inputs
+inputs = np.array(inputs)/255.0 #normalize inputs
 expected_answers = np.array(expected_answers) # Shape: (N, 10)
 num_examples = len(inputs)
 print(f"Loaded {num_examples} training examples.")
+
+if RESET:
+    os.system(f"python {script_dir}\\reset_model.py")
 
 H1_path = os.path.join(script_dir, "hiddenLayer", "H1.txt")
 H2_path = os.path.join(script_dir, "hiddenLayer", "H2.txt")
