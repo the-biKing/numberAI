@@ -10,6 +10,7 @@ import os
 import cv2
 import numpy as np
 import torch
+import time
 
 # ─── Device ──────────────────────────────────────────────────────────────────
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -91,9 +92,16 @@ if __name__ == "__main__":
     cfg, K, H1, H2 = load_weights()
     print(f"Loaded model: {cfg['NUM_KERNELS']} kernels | "
           f"H1={list(H1.shape)} | H2={list(H2.shape)}")
+          
+    total_params = K.nelement() + H1.nelement() + H2.nelement()
+    total_size_kb = (K.element_size() * K.nelement() + H1.element_size() * H1.nelement() + H2.element_size() * H2.nelement()) / 1024.0
+    print(f"Model Size: {total_params:,} parameters ({total_size_kb:.2f} KB)")
 
     if len(sys.argv) > 1:
+        t0 = time.perf_counter()
         run_inference(sys.argv[1], K, H1, H2, quiet=False)
+        t1 = time.perf_counter()
+        print(f"Inference Time: {(t1 - t0) * 1000:.2f} ms")
     else:
         verify_dir = os.path.join(script_dir, "..", "verify")
         train_dir  = os.path.join(script_dir, "..", "inputImage")
@@ -105,6 +113,8 @@ if __name__ == "__main__":
             print(f"\nEvaluating {dataset_name} dataset in "
                   f"{os.path.basename(directory)}/…")
             correct = total = 0
+            
+            t0 = time.perf_counter()
             for filename in os.listdir(directory):
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
                     img_path   = os.path.join(directory, filename)
@@ -115,9 +125,12 @@ if __name__ == "__main__":
                             total += 1
                             if predicted == int(true_str):
                                 correct += 1
+            t1 = time.perf_counter()
             if total > 0:
                 print(f"[{dataset_name}] Accuracy: {correct}/{total} "
                       f"({correct/total*100:.2f}%)")
+                print(f"[{dataset_name}] Total Time: {t1 - t0:.4f}s "
+                      f"({(t1 - t0)*1000/total:.2f} ms/image)")
             else:
                 print(f"[{dataset_name}] No valid images found.")
 

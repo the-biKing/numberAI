@@ -2,6 +2,7 @@ import sys
 import os
 import cv2
 import numpy as np
+import time
 
 def conv2d_single(X, K):
     out = np.zeros((26, 26))
@@ -73,10 +74,17 @@ if __name__ == "__main__":
     H1 = np.loadtxt(h1_path)
     H2 = np.loadtxt(h2_path)
     K = np.loadtxt(k_path)
+    
+    total_params = K.size + H1.size + H2.size
+    total_size_kb = (K.nbytes + H1.nbytes + H2.nbytes) / 1024.0
+    print(f"Model Size: {total_params:,} parameters ({total_size_kb:.2f} KB)")
 
     # If an argument is provided, use that. Otherwise evaluate both datasets.
     if len(sys.argv) > 1:
+        t0 = time.perf_counter()
         run_inference(sys.argv[1], K, H1, H2, quiet=False)
+        t1 = time.perf_counter()
+        print(f"Inference Time: {(t1 - t0) * 1000:.2f} ms")
     else:
         verify_dir = os.path.join(script_dir, "..", "verify")
         train_dir = os.path.join(script_dir, "..", "inputImage")
@@ -89,6 +97,7 @@ if __name__ == "__main__":
             print(f"\nEvaluating {dataset_name} dataset in {os.path.basename(directory)}/...")
             correct = 0
             total = 0
+            t0 = time.perf_counter()
             for filename in os.listdir(directory):
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
                     img_path = os.path.join(directory, filename)
@@ -101,10 +110,12 @@ if __name__ == "__main__":
                             total += 1
                             if predicted == true_label:
                                 correct += 1
+            t1 = time.perf_counter()
                                 
             if total > 0:
                 accuracy = (correct / total) * 100
                 print(f"[{dataset_name} Dataset] Accuracy: {correct}/{total} ({accuracy:.2f}%)")
+                print(f"[{dataset_name} Dataset] Total Time: {t1 - t0:.4f}s ({(t1 - t0)*1000/total:.2f} ms/image)")
             else:
                 print(f"[{dataset_name} Dataset] No valid images found.")
 

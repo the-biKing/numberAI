@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.13)  10 MAY 2026 22:33
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.13)  11 MAY 2026 14:02
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -323,7 +323,7 @@ Package hyperref Info: Link coloring OFF on input line 15.
 \openout4 = `report.toc'.
 
  [2]
-<./image/architectureV0.png, id=178, 1014.79124pt x 406.51875pt>
+<./image/architectureV0.png, id=193, 1014.79124pt x 406.51875pt>
 File: ./image/architectureV0.png Graphic file (type png)
 <use ./image/architectureV0.png>
 Package pdftex.def Info: ./image/architectureV0.png  used on input line 46.
@@ -334,7 +334,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has
                                                   \__shipout_drop_firstpage_...
 l.52     \item \textbf
                       {I/O Inefficiency}: The training loop read and wrote t... <./image/architectureV0.png>] [4]
-<./image/trainV1.png, id=194, 578.16pt x 722.7pt>
+<./image/trainV1.png, id=209, 578.16pt x 722.7pt>
 File: ./image/trainV1.png Graphic file (type png)
 <use ./image/trainV1.png>
 Package pdftex.def Info: ./image/trainV1.png  used on input line 104.
@@ -345,7 +345,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has
                                                   \__shipout_drop_firstpage_...
 l.117 \end{itemize}
                     <./image/trainV1.png>]
-<./image/trainv1.1.png, id=210, 578.16pt x 722.7pt>
+<./image/trainv1.1.png, id=225, 578.16pt x 722.7pt>
 File: ./image/trainv1.1.png Graphic file (type png)
 <use ./image/trainv1.1.png>
 Package pdftex.def Info: ./image/trainv1.1.png  used on input line 143.
@@ -354,27 +354,49 @@ Package pdftex.def Info: ./image/trainv1.1.png  used on input line 143.
 pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.155 \end{itemize}
-                    <./image/trainv1.1.png>] [9] [10] [11] (report.aux)
+l.154     \item \textbf
+                       {Dynamic Stopping Condition}: Currently, training ter... <./image/trainv1.1.png>]
+<./image/trainv1.2.png, id=240, 867.24pt x 722.7pt>
+File: ./image/trainv1.2.png Graphic file (type png)
+<use ./image/trainv1.2.png>
+Package pdftex.def Info: ./image/trainv1.2.png  used on input line 169.
+(pdftex.def)             Requested size: 362.37569pt x 301.97705pt.
+ [9
+pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.177 \end{itemize}
+                    <./image/trainv1.2.png>] [10]
+<./image/trainV2.1.png, id=251, 939.51pt x 722.7pt>
+File: ./image/trainV2.1.png Graphic file (type png)
+<use ./image/trainV2.1.png>
+Package pdftex.def Info: ./image/trainV2.1.png  used on input line 220.
+(pdftex.def)             Requested size: 362.37569pt x 278.74211pt.
+ [11
+pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.228 \end{itemize}
+                    <./image/trainV2.1.png>] [12] (report.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: C41E6E3DBC4CA00EBD62AD3671530C1A;6604.
+(rerunfilecheck)             Checksum: 0B783F9221B87EE2B2472A4E5798505C;7272.
  ) 
 Here is how much of TeX's memory you used:
- 9814 strings out of 467871
- 152003 string characters out of 5418376
- 583033 words of memory out of 5000000
- 38538 multiletter control sequences out of 15000+600000
+ 9839 strings out of 467871
+ 152566 string characters out of 5418376
+ 583167 words of memory out of 5000000
+ 38557 multiletter control sequences out of 15000+600000
  635927 words of font info for 68 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,6n,79p,629b,527s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,6n,79p,730b,527s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\joshh\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on report.pdf (11 pages, 296523 bytes).
+Output written on report.pdf (12 pages, 478761 bytes).
 PDF statistics:
- 300 PDF objects out of 1000 (max. 8388607)
- 52 named destinations out of 1000 (max. 500000)
- 272 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 327 PDF objects out of 1000 (max. 8388607)
+ 58 named destinations out of 1000 (max. 500000)
+ 306 words of extra memory for PDF output out of 10000 (max. 10000000)
 

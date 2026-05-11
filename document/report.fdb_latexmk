@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1778423638.03083 "g:/code/numberAI/document/report.tex" "report.pdf" "report" 1778423638.95034 0
+["pdflatex"] 1778479367.53407 "g:/code/numberAI/document/report.tex" "report.pdf" "report" 1778479368.62431 0
   "C:/Users/joshh/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1774678583 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/joshh/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1200.pk" 1773387052 14064 b681637580207804834e5b5c67c0adf1 ""
   "C:/Users/joshh/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1773386965 13333487 5d33a7a9ebb17faffde2190e0138130f ""
@@ -80,14 +80,16 @@
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/refcount/refcount.sty" 1576433952 9878 9e94e8fa600d95f9c7731bb21dfb67a4 ""
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/rerunfilecheck/rerunfilecheck.sty" 1751104012 9684 a33a14b82ce60d6e77cb9be689d79ee6 ""
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "g:/code/numberAI/document/report.tex" 1778423634 15769 acc06af4df75c821012432ca1bf0e63d ""
+  "g:/code/numberAI/document/report.tex" 1778479365 18654 26e4cb0fed03a0f0729aacae6f153c14 ""
   "image/architectureV0.png" 1778400058 39542 25b1972d379a0d9dffbcbe9add6dd36d ""
   "image/trainV1.png" 1778297505 48494 cc3d3322a7b548ec519270dfcf96340c ""
+  "image/trainV2.1.png" 1778478723 103044 4372c82f7439aa6bc5e0d6572784b91b ""
   "image/trainv1.1.png" 1778340215 48572 9c3bc111109ed89444510b5e92f5601d ""
-  "report.aux" 1778423638 5247 943ef89bdce429e8a4022720b68a92cc "pdflatex"
-  "report.out" 1778423638 6604 c41e6e3dbc4ca00ebd62ad3671530c1a "pdflatex"
-  "report.tex" 1778423634 15769 acc06af4df75c821012432ca1bf0e63d ""
-  "report.toc" 1778423638 3103 2318f9fb6bf835f94d68a8ff66032454 "pdflatex"
+  "image/trainv1.2.png" 1778474762 111262 f8df61419dd812c18465fb4ed08bbf55 ""
+  "report.aux" 1778479368 6183 dd6e4967f615e642b535b48e033727e3 "pdflatex"
+  "report.out" 1778479368 7272 0b783f9221b87ee2b2472a4e5798505c "pdflatex"
+  "report.tex" 1778479365 18654 26e4cb0fed03a0f0729aacae6f153c14 ""
+  "report.toc" 1778479368 3426 d62c64fd8b5b06d5d12020118d574ab3 "pdflatex"
   (generated)
   "report.aux"
   "report.log"
