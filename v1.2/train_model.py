@@ -46,16 +46,11 @@ def get_metrics(A_vals, expected):
     # Mean Euclidean loss
     loss = np.mean(np.sqrt(np.sum((A_vals - expected)**2, axis=1)))
     
-    # Mean Entropy
-    exp_A = np.exp(A_vals - np.max(A_vals, axis=1, keepdims=True))
-    probs = exp_A / np.sum(exp_A, axis=1, keepdims=True)
-    entropy = -np.mean(np.sum(probs * np.log(probs + 1e-9), axis=1))
-    
     # Accuracy
     preds = np.argmax(A_vals, axis=1)
     truths = np.argmax(expected, axis=1)
     acc = np.mean(preds == truths)
-    return loss, entropy, acc
+    return loss, acc
 
 def save_model(H1_mat, H2_mat):
     np.savetxt(H1_path, H1_mat, fmt='%f')
@@ -85,12 +80,13 @@ ax2.set_title("Training Loss (Log Scale)")
 ax2.grid(True)
 ax2.legend()
 
-# Subplot 3: Entropy
-entropy_history = []
-line_entropy, = ax3.plot(entropy_history, label='Mean Entropy', color='r', linewidth=2)
-ax3.set_xlabel("Epoch")
-ax3.set_ylabel("Entropy")
-ax3.set_title("Prediction Confidence (Lower = More Confident)")
+# Subplot 3: Energy vs Time
+time_history = []
+energy_history = []
+line_energy, = ax3.plot(time_history, energy_history, label='Relativistic Energy', color='r', linewidth=2)
+ax3.set_xlabel("Time (s)")
+ax3.set_ylabel("Energy")
+ax3.set_title("Model Energy vs Time")
 ax3.grid(True)
 ax3.legend()
 
@@ -113,7 +109,7 @@ best_H2 = copy.deepcopy(H2)
 
 print("Starting training with Mini-batch Backpropagation... Press Ctrl+C to stop early.")
 
-epochs = 100
+epochs = 200  # Increased since dynamic stopping handles exit
 batch_size = 256
 LR_H1 = 0.05
 LR_H2 = 0.05
@@ -158,12 +154,33 @@ try:
                 
         # Calculate full train metrics for epoch logging
         _, train_A = forward_pass(x_train, H1, H2)
-        train_loss, train_entropy, train_acc = get_metrics(train_A, y_train)
+        train_loss, train_acc = get_metrics(train_A, y_train)
         
         _, test_A = forward_pass(x_test, H1, H2)
-        test_loss, test_entropy, test_acc = get_metrics(test_A, y_test)
+        test_loss, test_acc = get_metrics(test_A, y_test)
         
-        print(f"Epoch {epoch+1:03d}/{epochs} - Train Loss: {train_loss:.4f}, Train Acc: {train_acc*100:.2f}% | Test Acc: {test_acc*100:.2f}%")
+        current_time = time.time() - start_time
+        
+        # Calculate Relativistic Energy based on test accuracy
+        '''
+        v = (test_acc - 0.1) / 0.9
+        if v < 0: v = 0
+        if v >= 0.9999: v = 0.9999
+        energy = (1.0 / np.sqrt(1.0 - v**2)) - 1.0
+        '''
+        # 1. Linearly stretch 10%-100% to 0.0-1.0
+        v = (test_acc - 0.1) / 0.9
+        v = np.clip(v, 0, 0.9999) # Prevent v=1.0 which causes math error
+
+        # 2. Map 0-1 to the 0 to pi/2 range
+        # We use a slightly smaller multiplier (e.g., 1.57 ≈ pi/2) 
+        # to keep the energy from hitting absolute infinity too early.
+        phase_angle = v * (np.pi / 2)
+
+        # 3. Calculate Energy using Tangent
+        energy = np.tan(phase_angle)
+        
+        print(f"Epoch {epoch+1:03d}/{epochs} - Train Loss: {train_loss:.4f}, Train Acc: {train_acc*100:.2f}% | Test Acc: {test_acc*100:.2f}% | Energy: {energy:.4f}")
         
         # Update plots
         loss_history.append(train_loss)
@@ -177,9 +194,10 @@ try:
         ax2.relim()
         ax2.autoscale_view()
         
-        entropy_history.append(train_entropy)
-        line_entropy.set_ydata(entropy_history)
-        line_entropy.set_xdata(range(len(entropy_history)))
+        time_history.append(current_time)
+        energy_history.append(energy)
+        line_energy.set_ydata(energy_history)
+        line_energy.set_xdata(time_history)
         ax3.relim()
         ax3.autoscale_view()
         
@@ -194,7 +212,22 @@ try:
         ax4.autoscale_view()
         
         plt.pause(0.01)
-        
+        '''
+        # Dynamic Stopping Check (Sliding Window & Escape Velocity)
+        if current_time >= 5.0:
+            target_time = current_time - 5.0
+            idx = np.argmin(np.abs(np.array(time_history) - target_time))
+            past_time = time_history[idx]
+            past_energy = energy_history[idx]
+            
+            if past_time >= 5.0:
+                expected_energy = past_energy * (current_time / past_time)
+                print(f"[Sliding Window] T: {current_time:.1f}s (vs {past_time:.1f}s) | Energy: {energy:.4f} (Threshold: {expected_energy:.4f})")
+                if energy < expected_energy:
+                    print("Stopping condition met! Energy growth is slower than time growth.")
+                    save_model(best_H1, best_H2)
+                    raise StopIteration
+        '''
         # Epoch completed successfully
         best_H1 = copy.deepcopy(H1)
         best_H2 = copy.deepcopy(H2)
@@ -217,7 +250,7 @@ save_model(best_H1, best_H2)
 
 print("\n--- Final Test Set Evaluation ---")
 _, test_A = forward_pass(x_test, best_H1, best_H2)
-final_loss, final_entropy, final_acc = get_metrics(test_A, y_test)
+final_loss, final_acc = get_metrics(test_A, y_test)
 print(f"Test Accuracy: {final_acc*100:.2f}%")
 
 plt.ioff()

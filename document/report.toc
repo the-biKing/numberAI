@@ -29,9 +29,9 @@
 \contentsline {section}{\numberline {3}Phase 2: Embedded Systems Optimization}{12}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Quantization}{12}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}Distillation}{12}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Discoveries and Challenges}{12}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Model Selection via Relativistic Efficiency Analysis}{12}{subsection.4.1}%
+\contentsline {section}{\numberline {4}Discoveries and Challenges}{13}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Model Selection via Relativistic Efficiency Analysis}{13}{subsection.4.1}%
 \contentsline {subsubsection}{\numberline {4.1.1}The "Escape Velocity" Constraint}{13}{subsubsection.4.1.1}%
-\contentsline {subsection}{\numberline {4.2}Matrix Size Optimization}{13}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Trial and Error Efficiency}{13}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Conclusion}{13}{section.5}%
+\contentsline {subsection}{\numberline {4.2}Matrix Size Optimization}{14}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Trial and Error Efficiency}{14}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Conclusion}{14}{section.5}%
