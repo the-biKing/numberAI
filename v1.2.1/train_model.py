@@ -9,16 +9,16 @@ RESET = True
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-print("Loading MNIST 16x16 dataset...")
-data_path = os.path.join(script_dir, "..", "mnist", "mnist_16x16.npz")
+print("Loading MNIST 28x28 dataset...")
+data_path = os.path.join(script_dir, "..", "mnist", "mnist_28x28.npz")
 if not os.path.exists(data_path):
     print("Error: Dataset not found. Run prepare_mnist.py first.")
     sys.exit(1)
 
 data = np.load(data_path)
-x_train = data['x_train']
+x_train = data['x_train'].reshape(data['x_train'].shape[0], -1)
 y_train = data['y_train']
-x_test = data['x_test']
+x_test = data['x_test'].reshape(data['x_test'].shape[0], -1)
 y_test = data['y_test']
 
 num_train = len(x_train)

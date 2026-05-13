@@ -110,7 +110,7 @@ try:
     # Increased iterations since backprop is extremely fast. 
     # You can stop early via Ctrl+C if the plot levels out!
     start_time = time.time()
-    for k in range(500):
+    for k in range(100):
         # We might need larger learning rates for true backprop, but sticking to your base ones.
         LR_H1 = 0.01
         LR_H2 = 0.001
@@ -179,7 +179,6 @@ except KeyboardInterrupt:
     print("\nTraining interrupted by user. Saving current valid model...")
     save_model(best_H1, best_H2)
     plt.ioff()
-    plt.show()
     sys.exit(0)
 
 print("\nTraining loop finished. Saving final model...")
@@ -187,4 +186,19 @@ save_model(best_H1, best_H2)
 
 plt.ioff()
 print("Close the plot window to exit the script.")
-plt.show()
+plt.savefig("v1.1_training_plot.png")
+
+import csv
+import time
+csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "benchmark_results.csv")
+file_exists = os.path.isfile(csv_path)
+ver = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
+t_time = time.time() - start_time
+f_loss = iter_loss if 'iter_loss' in locals() else "N/A"
+f_acc = "N/A"
+with open(csv_path, mode='a', newline='') as f:
+    writer = csv.writer(f)
+    if not file_exists:
+        writer.writerow(["Version", "Training Time (s)", "Final Loss", "Test Accuracy (%)"])
+    writer.writerow([ver, round(t_time, 2), round(f_loss, 4) if isinstance(f_loss, float) else f_loss, f_acc])
+print(f"Results saved to {csv_path}")

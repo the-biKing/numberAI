@@ -38,7 +38,34 @@ except OSError:
     sys.exit(1)
 
 def forward_pass(X, H1_mat, H2_mat):
-    M = np.maximum(0, np.dot(X, H1_mat))
+    # Linear projection through H1 (36 neurons)
+    M1_linear = np.dot(X, H1_mat)
+    
+    # Max pooling 2x2 to the 16x16 input -> 8x8
+    x_16x16 = X.reshape(-1, 16, 16)
+    pool1 = x_16x16.reshape(-1, 8, 2, 8, 2).max(axis=(2, 4))
+    
+    # 3x3 Convolution with fixed Laplacian kernel (no padding) -> 6x6
+    laplacian_kernel = np.array([
+        [ 0,  1,  0],
+        [ 1, -4,  1],
+        [ 0,  1,  0]
+    ], dtype=np.float32)
+    
+    conv_out = np.zeros((X.shape[0], 6, 6), dtype=np.float32)
+    for i in range(3):
+        for j in range(3):
+            conv_out += pool1[:, i:i+6, j:j+6] * laplacian_kernel[i, j]
+            
+    # Flatten -> 36 features
+    pool_conv_flat = conv_out.reshape(-1, 36)
+    
+    # ResNet Addition: add extracted features to linear projection
+    M_pre_relu = M1_linear + pool_conv_flat
+    
+    # ReLU activation
+    M = np.maximum(0, M_pre_relu)
+    
     A = np.dot(M, H2_mat)
     return M, A
 
@@ -137,6 +164,8 @@ try:
             dH2 = np.dot(M.T, error_vector)
             hidden_error = np.dot(error_vector, H2.T)
             
+            # Since M = ReLU(X*H1 + pool_conv_flat), the gradient wrt H1 is just 
+            # X.T dot (hidden_error * relu_deriv). All 36 neurons are trainable.
             relu_deriv = (M > 0).astype(float)
             hidden_error_pre_relu = hidden_error * relu_deriv
             
@@ -253,7 +282,7 @@ print(f"Test Accuracy: {final_acc*100:.2f}%")
 
 plt.ioff()
 print("Close the plot window to exit the script.")
-plt.savefig("v1.2_training_plot.png")
+plt.savefig("v1.4_training_plot.png")
 
 import csv
 import time

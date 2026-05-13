@@ -38,7 +38,18 @@ except OSError:
     sys.exit(1)
 
 def forward_pass(X, H1_mat, H2_mat):
-    M = np.maximum(0, np.dot(X, H1_mat))
+    # Pass input through H1 (16 neurons)
+    M1 = np.maximum(0, np.dot(X, H1_mat))
+    
+    # Max pooling 2x2 to the 16x16 input twice
+    x_16x16 = X.reshape(-1, 16, 16)
+    pool1 = x_16x16.reshape(-1, 8, 2, 8, 2).max(axis=(2, 4))
+    pool2 = pool1.reshape(-1, 4, 2, 4, 2).max(axis=(2, 4))
+    pool_flat = pool2.reshape(-1, 16)
+    
+    # Combine H1 (16 neurons) and pooled features (16 neurons)
+    M = np.concatenate([M1, pool_flat], axis=1)
+    
     A = np.dot(M, H2_mat)
     return M, A
 
@@ -137,8 +148,12 @@ try:
             dH2 = np.dot(M.T, error_vector)
             hidden_error = np.dot(error_vector, H2.T)
             
-            relu_deriv = (M > 0).astype(float)
-            hidden_error_pre_relu = hidden_error * relu_deriv
+            # Extract only the 16 neurons that come from H1
+            hidden_error_H1 = hidden_error[:, :16]
+            M_H1 = M[:, :16]
+            
+            relu_deriv = (M_H1 > 0).astype(float)
+            hidden_error_pre_relu = hidden_error_H1 * relu_deriv
             
             dH1 = np.dot(X_batch.T, hidden_error_pre_relu)
             
@@ -253,7 +268,7 @@ print(f"Test Accuracy: {final_acc*100:.2f}%")
 
 plt.ioff()
 print("Close the plot window to exit the script.")
-plt.savefig("v1.2_training_plot.png")
+plt.savefig("v1.3_training_plot.png")
 
 import csv
 import time
