@@ -1,0 +1,5 @@
+mnist/data/
+mnist/*.npz
+mnist/*.zip
+__pycache__/
+*.pyc

@@ -1,5 +1,3 @@
-#resnet
-
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
@@ -11,10 +9,10 @@ RESET = True
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-print("Loading MNIST 28x28 dataset...")
-data_path = os.path.join(script_dir, "..", "mnist", "mnist_28x28.npz")
+print("Loading EMNIST 28x28 dataset...")
+data_path = os.path.join(script_dir, "..", "mnist", "emnist_28x28.npz")
 if not os.path.exists(data_path):
-    print("Error: Dataset not found. Run prepare_mnist.py first.")
+    print("Error: Dataset not found. Run prepare_emnist.py first.")
     sys.exit(1)
 
 data = np.load(data_path)
@@ -42,32 +40,9 @@ except OSError:
     sys.exit(1)
 
 def forward_pass(X, H1_mat, H2_mat, H3_mat):
-    # 1. H1 linear
-    M1_linear = np.dot(X, H1_mat)
-    
-    # 2. Pooling 1 -> 14x14 (196 features)
-    x_28x28 = X.reshape(-1, 28, 28)
-    pool1 = x_28x28.reshape(-1, 14, 2, 14, 2).max(axis=(2, 4))
-    pool1_flat = pool1.reshape(-1, 196)
-    
-    # 3. Add to H1 output
-    M1_pre_relu = M1_linear + pool1_flat
-    M1 = np.maximum(0, M1_pre_relu)
-    
-    # 4. H2 linear
-    M2_linear = np.dot(M1, H2_mat)
-    
-    # 5. Pooling 2 -> 7x7 (49 features)
-    pool2 = pool1.reshape(-1, 7, 2, 7, 2).max(axis=(2, 4))
-    pool2_flat = pool2.reshape(-1, 49)
-    
-    # 6. Add to H2 output
-    M2_pre_relu = M2_linear + pool2_flat
-    M2 = np.maximum(0, M2_pre_relu)
-    
-    # 7. H3 linear
+    M1 = np.maximum(0, np.dot(X, H1_mat))
+    M2 = np.maximum(0, np.dot(M1, H2_mat))
     A = np.dot(M2, H3_mat)
-    
     return M1, M2, A
 
 def get_metrics(A_vals, expected):

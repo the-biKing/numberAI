@@ -1,5 +1,3 @@
-#resnet
-
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
@@ -26,49 +24,49 @@ y_test = data['y_test']
 num_train = len(x_train)
 print(f"Loaded {num_train} training examples and {len(x_test)} test examples.")
 
-H1_path = os.path.join(script_dir, "hiddenLayer", "H1.txt")
+H1_1_path = os.path.join(script_dir, "hiddenLayer", "H1_1.txt")
+H1_2_path = os.path.join(script_dir, "hiddenLayer", "H1_2.txt")
+H1_3_path = os.path.join(script_dir, "hiddenLayer", "H1_3.txt")
+H1_4_path = os.path.join(script_dir, "hiddenLayer", "H1_4.txt")
 H2_path = os.path.join(script_dir, "hiddenLayer", "H2.txt")
-H3_path = os.path.join(script_dir, "hiddenLayer", "H3.txt")
 
 if RESET:
     os.system(f"python {os.path.join(script_dir, 'reset_model.py')}")
 
 try:
-    H1 = np.loadtxt(H1_path)
+    H1_1 = np.loadtxt(H1_1_path)
+    H1_2 = np.loadtxt(H1_2_path)
+    H1_3 = np.loadtxt(H1_3_path)
+    H1_4 = np.loadtxt(H1_4_path)
     H2 = np.loadtxt(H2_path)
-    H3 = np.loadtxt(H3_path)
 except OSError:
-    print("Error: Could not find H1.txt, H2.txt, or H3.txt. Please run reset_model.py first.")
+    print("Error: Could not find model weights. Please run reset_model.py first.")
     sys.exit(1)
 
-def forward_pass(X, H1_mat, H2_mat, H3_mat):
-    # 1. H1 linear
-    M1_linear = np.dot(X, H1_mat)
+def forward_pass(X, H1_1_mat, H1_2_mat, H1_3_mat, H1_4_mat, H2_mat):
+    N = X.shape[0]
     
-    # 2. Pooling 1 -> 14x14 (196 features)
-    x_28x28 = X.reshape(-1, 28, 28)
-    pool1 = x_28x28.reshape(-1, 14, 2, 14, 2).max(axis=(2, 4))
-    pool1_flat = pool1.reshape(-1, 196)
+    O1 = np.dot(X, H1_1_mat)
     
-    # 3. Add to H1 output
-    M1_pre_relu = M1_linear + pool1_flat
-    M1 = np.maximum(0, M1_pre_relu)
+    X2 = X.reshape(N, 2, 392)
+    O2 = np.dot(X2, H1_2_mat)
     
-    # 4. H2 linear
-    M2_linear = np.dot(M1, H2_mat)
+    X3 = X.reshape(N, 7, 112)
+    O3 = np.dot(X3, H1_3_mat)
     
-    # 5. Pooling 2 -> 7x7 (49 features)
-    pool2 = pool1.reshape(-1, 7, 2, 7, 2).max(axis=(2, 4))
-    pool2_flat = pool2.reshape(-1, 49)
+    X4 = X.reshape(N, 28, 28)
+    O4 = np.dot(X4, H1_4_mat)
     
-    # 6. Add to H2 output
-    M2_pre_relu = M2_linear + pool2_flat
-    M2 = np.maximum(0, M2_pre_relu)
+    O1_flat = O1.reshape(N, 28)
+    O2_flat = O2.reshape(N, 28)
+    O3_flat = O3.reshape(N, 28)
+    O4_flat = O4.reshape(N, 28)
     
-    # 7. H3 linear
-    A = np.dot(M2, H3_mat)
+    concat_O = np.concatenate((O1_flat, O2_flat, O3_flat, O4_flat), axis=1)
+    M1 = np.maximum(0, concat_O)
     
-    return M1, M2, A
+    A = np.dot(M1, H2_mat)
+    return O1, O2, O3, O4, M1, A
 
 def get_metrics(A_vals, expected):
     # Mean Euclidean loss
@@ -80,10 +78,12 @@ def get_metrics(A_vals, expected):
     acc = np.mean(preds == truths)
     return loss, acc
 
-def save_model(H1_mat, H2_mat, H3_mat):
-    np.savetxt(H1_path, H1_mat, fmt='%f')
+def save_model(H1_1_mat, H1_2_mat, H1_3_mat, H1_4_mat, H2_mat):
+    np.savetxt(H1_1_path, H1_1_mat, fmt='%f')
+    np.savetxt(H1_2_path, H1_2_mat, fmt='%f')
+    np.savetxt(H1_3_path, H1_3_mat, fmt='%f')
+    np.savetxt(H1_4_path, H1_4_mat, fmt='%f')
     np.savetxt(H2_path, H2_mat, fmt='%f')
-    np.savetxt(H3_path, H3_mat, fmt='%f')
     print("Model saved to disk successfully.")
 
 # Initialize dynamic plot
@@ -133,9 +133,11 @@ ax4.legend()
 plt.tight_layout()
 plt.show(block=False)
 
-best_H1 = copy.deepcopy(H1)
+best_H1_1 = copy.deepcopy(H1_1)
+best_H1_2 = copy.deepcopy(H1_2)
+best_H1_3 = copy.deepcopy(H1_3)
+best_H1_4 = copy.deepcopy(H1_4)
 best_H2 = copy.deepcopy(H2)
-best_H3 = copy.deepcopy(H3)
 
 print("Starting training with Mini-batch Backpropagation... Press Ctrl+C to stop early.")
 
@@ -143,7 +145,6 @@ epochs = 100
 batch_size = 256
 LR_H1 = 0.05
 LR_H2 = 0.05
-LR_H3 = 0.05
 
 start_time = time.time()
 
@@ -160,41 +161,56 @@ try:
             batch_n = len(X_batch)
             
             # 1. Forward Pass
-            M1, M2, A = forward_pass(X_batch, H1, H2, H3)
+            O1, O2, O3, O4, M1, A = forward_pass(X_batch, H1_1, H1_2, H1_3, H1_4, H2)
             
             # 2. Backward Pass (Blame Assignment)
             error_vector = (A - Y_batch) / batch_n  # Mean error gradient
             
-            dH3 = np.dot(M2.T, error_vector)
-            hidden_error_2 = np.dot(error_vector, H3.T)
+            dH2 = np.dot(M1.T, error_vector)
             
-            relu_deriv_2 = (M2 > 0).astype(float)
-            hidden_error_pre_relu_2 = hidden_error_2 * relu_deriv_2
+            hidden_error_m1 = np.dot(error_vector, H2.T)
+            relu_deriv = (M1 > 0).astype(float)
+            hidden_error_pre_relu = hidden_error_m1 * relu_deriv
             
-            dH2 = np.dot(M1.T, hidden_error_pre_relu_2)
-            hidden_error_1 = np.dot(hidden_error_pre_relu_2, H2.T)
+            dO1_flat = hidden_error_pre_relu[:, 0:28]
+            dO2_flat = hidden_error_pre_relu[:, 28:56]
+            dO3_flat = hidden_error_pre_relu[:, 56:84]
+            dO4_flat = hidden_error_pre_relu[:, 84:112]
             
-            relu_deriv_1 = (M1 > 0).astype(float)
-            hidden_error_pre_relu_1 = hidden_error_1 * relu_deriv_1
+            dO1 = dO1_flat.reshape(O1.shape)
+            dO2 = dO2_flat.reshape(O2.shape)
+            dO3 = dO3_flat.reshape(O3.shape)
+            dO4 = dO4_flat.reshape(O4.shape)
             
-            dH1 = np.dot(X_batch.T, hidden_error_pre_relu_1)
+            dH1_1 = np.dot(X_batch.T, dO1)
+            
+            X2 = X_batch.reshape(batch_n, 2, 392)
+            dH1_2 = np.tensordot(X2, dO2, axes=([0, 1], [0, 1]))
+            
+            X3 = X_batch.reshape(batch_n, 7, 112)
+            dH1_3 = np.tensordot(X3, dO3, axes=([0, 1], [0, 1]))
+            
+            X4 = X_batch.reshape(batch_n, 28, 28)
+            dH1_4 = np.tensordot(X4, dO4, axes=([0, 1], [0, 1]))
             
             # 3. Apply Gradients
-            H1 -= LR_H1 * dH1
+            H1_1 -= LR_H1 * dH1_1
+            H1_2 -= LR_H1 * dH1_2
+            H1_3 -= LR_H1 * dH1_3
+            H1_4 -= LR_H1 * dH1_4
             H2 -= LR_H2 * dH2
-            H3 -= LR_H3 * dH3
             
             # Safety check (on small slice)
-            if np.isnan(np.sum(H1)) or np.isnan(np.sum(H2)) or np.isnan(np.sum(H3)):
+            if np.isnan(np.sum(H2)):
                 print(f"\nGradient explosion detected. Restoring last valid model.")
-                save_model(best_H1, best_H2, best_H3)
+                save_model(best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H2)
                 raise StopIteration
                 
         # Calculate full train metrics for epoch logging
-        _, _, train_A = forward_pass(x_train, H1, H2, H3)
+        _, _, _, _, _, train_A = forward_pass(x_train, H1_1, H1_2, H1_3, H1_4, H2)
         train_loss, train_acc = get_metrics(train_A, y_train)
         
-        _, _, test_A = forward_pass(x_test, H1, H2, H3)
+        _, _, _, _, _, test_A = forward_pass(x_test, H1_1, H1_2, H1_3, H1_4, H2)
         test_loss, test_acc = get_metrics(test_A, y_test)
         
         current_time = time.time() - start_time
@@ -266,15 +282,17 @@ try:
                     raise StopIteration
         '''
         # Epoch completed successfully
-        best_H1 = copy.deepcopy(H1)
+        best_H1_1 = copy.deepcopy(H1_1)
+        best_H1_2 = copy.deepcopy(H1_2)
+        best_H1_3 = copy.deepcopy(H1_3)
+        best_H1_4 = copy.deepcopy(H1_4)
         best_H2 = copy.deepcopy(H2)
-        best_H3 = copy.deepcopy(H3)
         
 except StopIteration:
     pass
 except KeyboardInterrupt:
     print("\nTraining interrupted by user. Saving current valid model...")
-    save_model(best_H1, best_H2, best_H3)
+    save_model(best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H2)
     plt.ioff()
     sys.exit(0)
 
@@ -283,10 +301,10 @@ total_time = end_time - start_time
 print(f"Training completed in {total_time:.2f} seconds.")
 
 print("\nTraining loop finished. Saving final model...")
-save_model(best_H1, best_H2, best_H3)
+save_model(best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H2)
 
 print("\n--- Final Test Set Evaluation ---")
-_, _, test_A = forward_pass(x_test, best_H1, best_H2, best_H3)
+_, _, _, _, _, test_A = forward_pass(x_test, best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H2)
 final_loss, final_acc = get_metrics(test_A, y_test)
 print(f"Test Accuracy: {final_acc*100:.2f}%")
 
