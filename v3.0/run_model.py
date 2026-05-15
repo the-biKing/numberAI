@@ -119,38 +119,63 @@ if __name__ == "__main__":
         t1 = time.perf_counter()
         print(f"Inference Time: {(t1 - t0) * 1000:.2f} ms")
     else:
-        verify_dir = os.path.join(script_dir, "..", "verify")
-        train_dir = os.path.join(script_dir, "..", "inputImage")
-        
-        def evaluate_directory(directory, dataset_name):
-            if not os.path.exists(directory):
-                print(f"\nError: Directory {directory} not found.")
-                return
+        npz_path = os.path.join(script_dir, "..", "emnist_28x28.npz")
+        if not os.path.exists(npz_path):
+            print(f"Error: {npz_path} not found. Please run prepare_emnist.py first.")
+            sys.exit(1)
             
-            print(f"\nEvaluating {dataset_name} dataset in {os.path.basename(directory)}/...")
-            correct = 0
-            total = 0
-            t0 = time.perf_counter()
-            for filename in os.listdir(directory):
-                if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
-                    img_path = os.path.join(directory, filename)
-                    predicted = run_inference(img_path, H1_1, H1_2, H1_3, H1_4, H1_5, H2, H_conv, H3, quiet=True)
-                    if predicted is not None:
-                        # Extract true label from filename (e.g., '0.png' -> '0', 'A_1.PNG' -> 'A')
-                        true_label_str = filename.split('_')[0].split('.')[0]
-                        if true_label_str in CHAR_TO_INDEX:
-                            true_label = CHAR_TO_INDEX[true_label_str]
-                            total += 1
-                            if predicted == true_label:
-                                correct += 1
-            t1 = time.perf_counter()
-                                
-            if total > 0:
-                accuracy = (correct / total) * 100
-                print(f"[{dataset_name} Dataset] Accuracy: {correct}/{total} ({accuracy:.2f}%)")
-                print(f"[{dataset_name} Dataset] Total Time: {t1 - t0:.4f}s ({(t1 - t0)*1000/total:.2f} ms/image)")
-            else:
-                print(f"[{dataset_name} Dataset] No valid images found.")
+        print("\nLoading 100 random samples from EMNIST test dataset...")
+        data = np.load(npz_path)
+        x_test = data['x_test']  # Shape (N, 784)
+        y_test = data['y_test']  # One-hot shape (N, 47)
+        
+        num_samples = 100
+        indices = np.random.choice(len(x_test), num_samples, replace=False)
+        x_sample = x_test[indices]
+        y_sample = y_test[indices]
+        
+        print(f"Evaluating {num_samples} random samples...")
+        correct = 0
+        t0 = time.perf_counter()
+        
+        for i in range(num_samples):
+            # Forward pass using pre-loaded and pre-normalized 1D array
+            I_batch = x_sample[i].reshape(1, 784)
+            O1 = np.dot(I_batch, H1_1)
+            I_2 = I_batch.reshape(1, 2, 392)
+            O2 = np.dot(I_2, H1_2)
+            I_3 = I_batch.reshape(1, 7, 112)
+            O3 = np.dot(I_3, H1_3)
+            I_4 = I_batch.reshape(1, 14, 56)
+            O4 = np.dot(I_4, H1_4)
+            I_5 = I_batch.reshape(1, 28, 28)
+            O5 = np.dot(I_5, H1_5)
+            
+            concat_O = np.concatenate((O1.reshape(1, 56), O2.reshape(1, 56), O3.reshape(1, 56), O4.reshape(1, 56), O5.reshape(1, 56)), axis=1)
+            M1 = np.maximum(0, concat_O)
+            M2_branch1 = np.dot(M1, H2)
+            
+            X_img = I_batch.reshape(1, 28, 28)
+            X_pad = np.pad(X_img, ((0,0), (1,1), (1,1)), mode='constant')
+            shape = (1, 14, 14, 3, 3)
+            strides = (X_pad.strides[0], X_pad.strides[1]*2, X_pad.strides[2]*2, X_pad.strides[1], X_pad.strides[2])
+            X_blocks = np.lib.stride_tricks.as_strided(X_pad, shape=shape, strides=strides)
+            
+            M2_branch2 = np.tensordot(X_blocks, H_conv, axes=([3, 4], [0, 1]))
+            M2_branch2 = M2_branch2.reshape(1, 196)
+            
+            M2 = M2_branch1 + M2_branch2
+            M2_relu = np.maximum(0, M2)
+            A = np.dot(M2_relu, H3)
 
-        evaluate_directory(train_dir, "Training")
-        evaluate_directory(verify_dir, "Verify")
+            predicted_digit = np.argmax(A)
+            true_label = np.argmax(y_sample[i])
+            
+            if predicted_digit == true_label:
+                correct += 1
+                
+        t1 = time.perf_counter()
+        
+        accuracy = (correct / num_samples) * 100
+        print(f"[EMNIST Test Dataset] Accuracy: {correct}/{num_samples} ({accuracy:.2f}%)")
+        print(f"[EMNIST Test Dataset] Total Time: {t1 - t0:.4f}s ({(t1 - t0)*1000/num_samples:.2f} ms/image)")
