@@ -1,6 +1,14 @@
 import numpy as np
 import torchvision
 import os
+import urllib.request
+
+# The official NIST URL redirects to an HTML page, and the biometrics URL returns 403 without a User-Agent.
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+urllib.request.install_opener(opener)
+
+torchvision.datasets.EMNIST.url = 'https://biometrics.nist.gov/cs_links/EMNIST/gzip.zip'
 
 print("Downloading EMNIST bymerge...")
 dataset_train = torchvision.datasets.EMNIST(root='./data', split='bymerge', train=True, download=True)

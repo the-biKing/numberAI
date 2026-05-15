@@ -25,11 +25,5 @@ np.savetxt(os.path.join(target_dir, "H2.txt"), H2)
 np.savetxt(os.path.join(target_dir, "H_conv.txt"), H_conv)
 np.savetxt(os.path.join(target_dir, "H3.txt"), H3)
 
-# Cleanup old files
-for old_file in ["H1.txt"]:
-    p = os.path.join(target_dir, old_file)
-    if os.path.exists(p):
-        try: os.remove(p)
-        except: pass
 
 print(f"Weights reset successfully in: {target_dir}")
