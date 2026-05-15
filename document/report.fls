@@ -190,6 +190,7 @@ INPUT .\image\trainV2.1.png
 INPUT .\image\trainV2.1.png
 INPUT .\image\trainV2.1.png
 INPUT .\image\trainV2.1.png
+INPUT C:\Users\joshh\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmtt12.tfm
 INPUT report.aux
 INPUT .\report.out
 INPUT .\report.out
@@ -219,3 +220,5 @@ INPUT C:\Users\joshh\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\c
 INPUT C:\Users\joshh\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
 INPUT C:\Users\joshh\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmti12.pfb
 INPUT C:\Users\joshh\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmti12.pfb
+INPUT C:\Users\joshh\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt12.pfb
+INPUT C:\Users\joshh\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmtt12.pfb

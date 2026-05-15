@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.13)  15 MAY 2026 22:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.3.13)  16 MAY 2026 01:02
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -323,7 +323,7 @@ Package hyperref Info: Link coloring OFF on input line 15.
 \openout4 = `report.toc'.
 
  [2]
-<./image/architectureV0.png, id=203, 1014.79124pt x 406.51875pt>
+<./image/architectureV0.png, id=233, 1014.79124pt x 406.51875pt>
 File: ./image/architectureV0.png Graphic file (type png)
 <use ./image/architectureV0.png>
 Package pdftex.def Info: ./image/architectureV0.png  used on input line 46.
@@ -334,7 +334,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has
                                                   \__shipout_drop_firstpage_...
 l.52     \item \textbf
                       {I/O Inefficiency}: The training loop read and wrote t... <./image/architectureV0.png>] [4]
-<./image/trainV1.png, id=219, 578.16pt x 722.7pt>
+<./image/trainV1.png, id=249, 578.16pt x 722.7pt>
 File: ./image/trainV1.png Graphic file (type png)
 <use ./image/trainV1.png>
 Package pdftex.def Info: ./image/trainV1.png  used on input line 104.
@@ -345,7 +345,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has
                                                   \__shipout_drop_firstpage_...
 l.117 \end{itemize}
                     <./image/trainV1.png>]
-<./image/trainv1.1.png, id=235, 578.16pt x 722.7pt>
+<./image/trainv1.1.png, id=265, 578.16pt x 722.7pt>
 File: ./image/trainv1.1.png Graphic file (type png)
 <use ./image/trainv1.1.png>
 Package pdftex.def Info: ./image/trainv1.1.png  used on input line 143.
@@ -356,7 +356,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has
                                                   \__shipout_drop_firstpage_...
 l.154     \item \textbf
                        {Dynamic Stopping Condition}: Currently, training ter... <./image/trainv1.1.png>]
-<./image/trainv1.2.png, id=250, 867.24pt x 722.7pt>
+<./image/trainv1.2.png, id=280, 867.24pt x 722.7pt>
 File: ./image/trainv1.2.png Graphic file (type png)
 <use ./image/trainv1.2.png>
 Package pdftex.def Info: ./image/trainv1.2.png  used on input line 169.
@@ -367,12 +367,12 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has
                                                   \__shipout_drop_firstpage_...
 l.177 \end{itemize}
                     <./image/trainv1.2.png>] [10]
-<./image/architectureV2.png, id=261, 1370.11874pt x 763.85374pt>
+<./image/architectureV2.png, id=291, 1370.11874pt x 763.85374pt>
 File: ./image/architectureV2.png Graphic file (type png)
 <use ./image/architectureV2.png>
 Package pdftex.def Info: ./image/architectureV2.png  used on input line 213.
 (pdftex.def)             Requested size: 362.37569pt x 202.02399pt.
-<./image/trainV2.1.png, id=262, 939.51pt x 722.7pt>
+<./image/trainV2.1.png, id=292, 939.51pt x 722.7pt>
 File: ./image/trainV2.1.png Graphic file (type png)
 <use ./image/trainV2.1.png>
 Package pdftex.def Info: ./image/trainV2.1.png  used on input line 227.
@@ -382,36 +382,36 @@ pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) has
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.231 
-       <./image/architectureV2.png>]
-Overfull \hbox (1.38712pt too wide) in paragraph at lines 248--249
-\OT1/cmr/m/n/12 Following the im-ple-men-ta-tion of Ver-sion 2.1, a crit-i-cal ar-chi-tec-tural cross-road was reached:
- []
-
-[12
+       <./image/architectureV2.png>] [12
 pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.249 
-       <./image/trainV2.1.png>] [13] [14] (report.aux)
+l.245 \end{itemize}
+                    <./image/trainV2.1.png>] [13]
+Overfull \hbox (1.38712pt too wide) in paragraph at lines 280--281
+\OT1/cmr/m/n/12 Following the im-ple-men-ta-tion of Ver-sion 2.1, a crit-i-cal ar-chi-tec-tural cross-road was reached:
+ []
+
+[14] [15] (report.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: DD48B325B98B69692F5F7960A5E56A78;7842.
+(rerunfilecheck)             Checksum: AD192A288F9B83C784B3CB7DB6E7ED24;9312.
  ) 
 Here is how much of TeX's memory you used:
- 9856 strings out of 467871
- 152928 string characters out of 5418376
- 583217 words of memory out of 5000000
- 38567 multiletter control sequences out of 15000+600000
- 635927 words of font info for 68 fonts, out of 8000000 for 9000
+ 9873 strings out of 467871
+ 153203 string characters out of 5418376
+ 583223 words of memory out of 5000000
+ 38576 multiletter control sequences out of 15000+600000
+ 636096 words of font info for 69 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,6n,79p,730b,527s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\joshh\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on report.pdf (14 pages, 539593 bytes).
+ <C:\Users\joshh\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on report.pdf (15 pages, 553329 bytes).
 PDF statistics:
- 357 PDF objects out of 1000 (max. 8388607)
- 65 named destinations out of 1000 (max. 500000)
- 327 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 397 PDF objects out of 1000 (max. 8388607)
+ 72 named destinations out of 1000 (max. 500000)
+ 375 words of extra memory for PDF output out of 10000 (max. 10000000)
 

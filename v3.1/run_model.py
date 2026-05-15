@@ -75,6 +75,7 @@ class ModelV3_1(nn.Module):
         self.H1_7 = nn.Parameter(torch.randn(7, 24, 1) * math.sqrt(2.0 / 24))
         self.H2 = nn.Parameter(torch.randn(24, 16) * math.sqrt(2.0 / 24))
         self.H3 = nn.Parameter(torch.randn(784, 47) * math.sqrt(2.0 / 784))
+        self.W_skip = nn.Parameter(torch.full((784,), 0.5, dtype=torch.float32))
         
     def forward(self, x):
         B = x.shape[0]
@@ -89,7 +90,7 @@ class ModelV3_1(nn.Module):
         
         concat_res = h2_out.view(B, 784)
         x_flat = x.view(B, 784)
-        out = concat_res + x_flat
+        out = self.W_skip * concat_res + (1.0 - self.W_skip) * x_flat
         out = torch.relu(out)
 
         
@@ -109,6 +110,16 @@ def load_weights(model, hidden_layer_dir):
         model.H1_7.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H1_7.txt")).reshape(7, 24, 1), dtype=torch.float32)
         model.H2.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H2.txt")), dtype=torch.float32)
         model.H3.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H3.txt")), dtype=torch.float32)
+        
+        residual_path = os.path.join(hidden_layer_dir, "residual.txt")
+        if os.path.exists(residual_path):
+            data = np.loadtxt(residual_path)
+            if data.size == 1:
+                model.W_skip.data = torch.full((784,), float(data), dtype=torch.float32)
+            else:
+                model.W_skip.data = torch.tensor(data.reshape(784), dtype=torch.float32)
+        else:
+            model.W_skip.data = torch.full((784,), 0.5, dtype=torch.float32)
     except OSError:
         return False
     return True

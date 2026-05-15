@@ -52,6 +52,7 @@ def save_model(model):
     np.savetxt(os.path.join(hidden_layer_dir, "H1_7.txt"), model.H1_7.data.numpy().reshape(-1, 1), fmt='%f')
     np.savetxt(os.path.join(hidden_layer_dir, "H2.txt"), model.H2.data.numpy(), fmt='%f')
     np.savetxt(os.path.join(hidden_layer_dir, "H3.txt"), model.H3.data.numpy(), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "residual.txt"), model.W_skip.data.numpy(), fmt='%f')
     print("Model saved to disk successfully.")
 
 def get_metrics(model, X, Y, batch_size=256):
@@ -126,20 +127,21 @@ print("Starting PyTorch training... Press Ctrl+C to stop early.")
 
 epochs = 100
 batch_size = 256
-learning_rate = 0.01
+learning_rate = 0.001
 
-lr_conv1 = 0.001
-lr_conv2 = 0.003
-lr_H1 = 0.005
-lr_H2 = 0.007
-lr_H3 = 0.009
+lr_conv1 = learning_rate
+lr_conv2 = learning_rate
+lr_H1 = learning_rate
+lr_H2 = learning_rate
+lr_H3 = learning_rate
 
-optimizer = optim.SGD([
+optimizer = optim.Adam([
     {'params': model.conv1.parameters(), 'lr': lr_conv1},
     {'params': model.conv2.parameters(), 'lr': lr_conv2},
     {'params': [model.H1_1, model.H1_2, model.H1_3, model.H1_4, model.H1_5, model.H1_6, model.H1_7], 'lr': lr_H1},
     {'params': [model.H2], 'lr': lr_H2},
-    {'params': [model.H3], 'lr': lr_H3}
+    {'params': [model.H3], 'lr': lr_H3},
+    {'params': [model.W_skip], 'lr': learning_rate}
 ], lr=learning_rate)
 
 criterion = nn.CrossEntropyLoss()

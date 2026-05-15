@@ -26,5 +26,6 @@ init_and_save((7*48, 2), 48, "H1_6.txt")
 init_and_save((7*24, 1), 24, "H1_7.txt")
 init_and_save((24, 16), 24, "H2.txt")
 init_and_save((784, 47), 784, "H3.txt")
+np.savetxt(os.path.join(hidden_layer_dir, "residual.txt"), np.full(784, 0.5), fmt='%f')
 
 print("Initialized model weights for v3.1 successfully.")
