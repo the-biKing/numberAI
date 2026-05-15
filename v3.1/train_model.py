@@ -60,17 +60,19 @@ def get_metrics(model, X, Y, batch_size=256):
     correct = 0
     total = len(X)
     
+    criterion_eval = nn.CrossEntropyLoss()
+    
     with torch.no_grad():
         for i in range(0, total, batch_size):
             X_batch = torch.tensor(X[i:i+batch_size])
             Y_batch = torch.tensor(Y[i:i+batch_size])
             
             A = model(X_batch)
-            loss = torch.mean(torch.sqrt(torch.sum((A - Y_batch)**2, dim=1))).item()
+            truths = torch.argmax(Y_batch, dim=1)
+            loss = criterion_eval(A, truths).item()
             losses.append(loss * len(X_batch))
             
             preds = torch.argmax(A, dim=1)
-            truths = torch.argmax(Y_batch, dim=1)
             correct += (preds == truths).sum().item()
             
     return sum(losses) / total, correct / total
@@ -125,10 +127,22 @@ print("Starting PyTorch training... Press Ctrl+C to stop early.")
 epochs = 100
 batch_size = 256
 learning_rate = 0.01
-optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
-def custom_loss(A, Y):
-    return torch.mean(torch.sqrt(torch.sum((A - Y)**2, dim=1)))
+lr_conv1 = 0.001
+lr_conv2 = 0.003
+lr_H1 = 0.005
+lr_H2 = 0.007
+lr_H3 = 0.009
+
+optimizer = optim.SGD([
+    {'params': model.conv1.parameters(), 'lr': lr_conv1},
+    {'params': model.conv2.parameters(), 'lr': lr_conv2},
+    {'params': [model.H1_1, model.H1_2, model.H1_3, model.H1_4, model.H1_5, model.H1_6, model.H1_7], 'lr': lr_H1},
+    {'params': [model.H2], 'lr': lr_H2},
+    {'params': [model.H3], 'lr': lr_H3}
+], lr=learning_rate)
+
+criterion = nn.CrossEntropyLoss()
 
 start_time = time.time()
 
@@ -145,10 +159,11 @@ try:
         for i in range(0, num_train, batch_size):
             X_batch = torch.tensor(x_train_shuffled[i:i+batch_size]).to(device)
             Y_batch = torch.tensor(y_train_shuffled[i:i+batch_size]).to(device)
+            Y_indices = torch.argmax(Y_batch, dim=1)
             
             optimizer.zero_grad()
             A = model(X_batch)
-            loss = custom_loss(A, Y_batch)
+            loss = criterion(A, Y_indices)
             loss.backward()
             
             # Check for exploding gradients

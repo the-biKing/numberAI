@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1778491867.78083 "g:/code/numberAI/document/report.tex" "report.pdf" "report" 1778491868.98293 0
-  "C:/Users/joshh/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1774678583 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
+["pdflatex"] 1778854671.03815 "g:/code/numberAI/document/report.tex" "report.pdf" "report" 1778854672.69276 0
+  "C:/Users/joshh/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1778854667 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/joshh/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1200.pk" 1773387052 14064 b681637580207804834e5b5c67c0adf1 ""
   "C:/Users/joshh/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1773386965 13333487 5d33a7a9ebb17faffde2190e0138130f ""
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/fonts/tfm/jknappen/ec/tcrm1200.tfm" 993062508 1444 95ffe0f19b974d50849790c8225c7ef7 ""
@@ -81,17 +81,17 @@
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/refcount/refcount.sty" 1576433952 9878 9e94e8fa600d95f9c7731bb21dfb67a4 ""
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/rerunfilecheck/rerunfilecheck.sty" 1751104012 9684 a33a14b82ce60d6e77cb9be689d79ee6 ""
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "g:/code/numberAI/document/report.tex" 1778491867 21917 688397d9572c10990401616ac815c77a ""
+  "g:/code/numberAI/document/report.tex" 1778854670 22025 4363b8bb28e752f8f49b3117570c80bf ""
   "image/architectureV0.png" 1778400058 39542 25b1972d379a0d9dffbcbe9add6dd36d ""
   "image/architectureV2.png" 1778491855 149697 9fb9f5d3fe1f4f92ef61306721894699 ""
   "image/trainV1.png" 1778297505 48494 cc3d3322a7b548ec519270dfcf96340c ""
   "image/trainV2.1.png" 1778478723 103044 4372c82f7439aa6bc5e0d6572784b91b ""
   "image/trainv1.1.png" 1778340215 48572 9c3bc111109ed89444510b5e92f5601d ""
   "image/trainv1.2.png" 1778474762 111262 f8df61419dd812c18465fb4ed08bbf55 ""
-  "report.aux" 1778491868 6706 0772c2b630ebd55c2ce4d4f11ecde418 "pdflatex"
-  "report.out" 1778491868 7842 dd48b325b98b69692f5f7960a5e56a78 "pdflatex"
-  "report.tex" 1778491867 21917 688397d9572c10990401616ac815c77a ""
-  "report.toc" 1778491868 3654 f4d627a778fa8add2b2649dc978c72da "pdflatex"
+  "report.aux" 1778854672 6706 0772c2b630ebd55c2ce4d4f11ecde418 "pdflatex"
+  "report.out" 1778854672 7842 dd48b325b98b69692f5f7960a5e56a78 "pdflatex"
+  "report.tex" 1778854670 22025 4363b8bb28e752f8f49b3117570c80bf ""
+  "report.toc" 1778854672 3654 f4d627a778fa8add2b2649dc978c72da "pdflatex"
   (generated)
   "report.aux"
   "report.log"

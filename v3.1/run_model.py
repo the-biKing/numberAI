@@ -15,6 +15,51 @@ MERGED_LOWERCASE = ['c', 'i', 'j', 'k', 'l', 'm', 'o', 'p', 's', 'u', 'v', 'w', 
 for c in MERGED_LOWERCASE:
     CHAR_TO_INDEX[c] = CHAR_TO_INDEX[c.upper()]
 
+class MultiScaleSlicing(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, c2, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7):
+        B = c2.shape[0]
+        ctx.save_for_backward(c2, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7)
+        
+        o1 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 1, 576), H1_1).reshape(B, 7, 1, 24)
+        o2 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 2, 288), H1_2).reshape(B, 7, 1, 24)
+        o3 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 3, 192), H1_3).reshape(B, 7, 1, 24)
+        o4 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 6, 96), H1_4).reshape(B, 7, 1, 24)
+        o5 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 8, 72), H1_5).reshape(B, 7, 1, 24)
+        o6 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 12, 48), H1_6).reshape(B, 7, 1, 24)
+        o7 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 24, 24), H1_7).reshape(B, 7, 1, 24)
+        
+        return torch.cat([o1, o2, o3, o4, o5, o6, o7], dim=2)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        c2, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7 = ctx.saved_tensors
+        B = c2.shape[0]
+        
+        g1, g2, g3, g4, g5, g6, g7 = torch.chunk(grad_output, 7, dim=2)
+        
+        def calc_grads(g_branch, H_branch, I, D, J):
+            g_bcij = g_branch.reshape(B, 7, I, J)
+            X_bcid = c2.view(B, 7, I, D)
+            
+            grad_H = torch.einsum('bcid,bcij->cdj', X_bcid, g_bcij)
+            grad_X = torch.einsum('bcij,cdj->bcid', g_bcij, H_branch)
+            grad_c2_part = grad_X.reshape(B, 7, 24, 24)
+            
+            return grad_H, grad_c2_part
+
+        grad_H1_1, grad_c2_1 = calc_grads(g1, H1_1, 1, 576, 24)
+        grad_H1_2, grad_c2_2 = calc_grads(g2, H1_2, 2, 288, 12)
+        grad_H1_3, grad_c2_3 = calc_grads(g3, H1_3, 3, 192, 8)
+        grad_H1_4, grad_c2_4 = calc_grads(g4, H1_4, 6, 96, 4)
+        grad_H1_5, grad_c2_5 = calc_grads(g5, H1_5, 8, 72, 3)
+        grad_H1_6, grad_c2_6 = calc_grads(g6, H1_6, 12, 48, 2)
+        grad_H1_7, grad_c2_7 = calc_grads(g7, H1_7, 24, 24, 1)
+        
+        grad_c2 = grad_c2_1 + grad_c2_2 + grad_c2_3 + grad_c2_4 + grad_c2_5 + grad_c2_6 + grad_c2_7
+        
+        return grad_c2, grad_H1_1, grad_H1_2, grad_H1_3, grad_H1_4, grad_H1_5, grad_H1_6, grad_H1_7
+
 class ModelV3_1(nn.Module):
     def __init__(self):
         super(ModelV3_1, self).__init__()
@@ -36,15 +81,7 @@ class ModelV3_1(nn.Module):
         c1 = self.conv1(x)
         c2 = self.conv2(c1)
         
-        o1 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 1, 576), self.H1_1).reshape(B, 7, 1, 24)
-        o2 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 2, 288), self.H1_2).reshape(B, 7, 1, 24)
-        o3 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 3, 192), self.H1_3).reshape(B, 7, 1, 24)
-        o4 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 6, 96), self.H1_4).reshape(B, 7, 1, 24)
-        o5 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 8, 72), self.H1_5).reshape(B, 7, 1, 24)
-        o6 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 12, 48), self.H1_6).reshape(B, 7, 1, 24)
-        o7 = torch.einsum('bcid,cdj->bcij', c2.view(B, 7, 24, 24), self.H1_7).reshape(B, 7, 1, 24)
-        
-        h1_out = torch.cat([o1, o2, o3, o4, o5, o6, o7], dim=2)
+        h1_out = MultiScaleSlicing.apply(c2, self.H1_1, self.H1_2, self.H1_3, self.H1_4, self.H1_5, self.H1_6, self.H1_7)
         h1_out = torch.relu(h1_out)
         
         h2_out = torch.matmul(h1_out, self.H2)
@@ -53,6 +90,8 @@ class ModelV3_1(nn.Module):
         concat_res = h2_out.view(B, 784)
         x_flat = x.view(B, 784)
         out = concat_res + x_flat
+        out = torch.relu(out)
+
         
         final_out = torch.matmul(out, self.H3)
         return final_out

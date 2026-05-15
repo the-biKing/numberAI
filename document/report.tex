@@ -17,7 +17,7 @@
 \maketitle
 
 \begin{abstract}
-This document outlines the development, architecture, and findings of the \textbf{numberAI} project. The objective of this project is to recreate machine learning functionality from scratch, without relying on pre-trained models or established neural network structures. By utilizing simple matrix multiplication and a trial-and-error training approach, the project aims to categorize number images. Additionally, it details the planned second phase involving quantization and distillation for deployment on resource-constrained embedded systems such as Arduino.
+    This document outlines the development, architecture, and findings of the \textbf{numberAI} project. The objective of this project is to recreate machine learning functionality from scratch, without relying on pre-trained models or established neural network structures. By utilizing simple matrix multiplication and a trial-and-error training approach, the project aims to categorize number images. Additionally, it details the planned second phase involving quantization and distillation for deployment on resource-constrained embedded systems such as Arduino.
 \end{abstract}
 
 \tableofcontents
@@ -82,13 +82,13 @@ The structure for Version 1.0 introduced non-linearity:
 \begin{itemize}
     \item \textbf{Optimized I/O}: The matrix reading and writing methods were optimized to keep weights in memory during the training loop, massively speeding up training.
     \item \textbf{Numerical Gradient Training}: The loss function calculates the sum of Euclidean distances between the actual output vector ($\mathbf{A}$) and expected output ($\mathbf{EA}$):
-    \begin{equation}
-    \mathbf{Loss} = \sum_{k=0}^{9} \sqrt{\sum_{n=0}^{9} \left( A_{k,n} - EA_{k,n} \right)^2}
-    \end{equation}
-    The weight was then updated using a numerical gradient approximation (trial-and-error):
-    \begin{equation}
-    H_{m,n} := H_{m,n} - \left( \frac{\mathbf{Loss}_{o+\text{change}} - \mathbf{Loss}_{o}}{\text{change}} \right) \cdot \alpha
-    \end{equation}
+          \begin{equation}
+              \mathbf{Loss} = \sum_{k=0}^{9} \sqrt{\sum_{n=0}^{9} \left( A_{k,n} - EA_{k,n} \right)^2}
+          \end{equation}
+          The weight was then updated using a numerical gradient approximation (trial-and-error):
+          \begin{equation}
+              H_{m,n} := H_{m,n} - \left( \frac{\mathbf{Loss}_{o+\text{change}} - \mathbf{Loss}_{o}}{\text{change}} \right) \cdot \alpha
+          \end{equation}
 \end{itemize}
 
 \subsubsection{Version 1.0 Training Results}
@@ -132,10 +132,10 @@ The implementation of vectorized blame assignment yielded two major breakthrough
 \begin{enumerate}
     \item \textbf{Blazing Fast Training}: The training time was drastically reduced to approximately 30.6 seconds (down from over 15 minutes in Version 1.0), completing 500 iterations over the entire dataset with ease.
     \item \textbf{Generalization over Memorization}: The updated weight adjustment logic successfully prevented the model from merely memorizing pixels. Evaluation metrics showed:
-    \begin{itemize}
-        \item \textbf{Training Dataset Accuracy}: 100.00\% (100/100)
-        \item \textbf{Verification Dataset Accuracy}: 60.00\% (6/10)
-    \end{itemize}
+          \begin{itemize}
+              \item \textbf{Training Dataset Accuracy}: 100.00\% (100/100)
+              \item \textbf{Verification Dataset Accuracy}: 60.00\% (6/10)
+          \end{itemize}
 \end{enumerate}
 
 \begin{figure}[H]
@@ -245,20 +245,20 @@ To deploy this model on an Arduino, the network must be significantly compressed
 
 \section{Discoveries and Challenges}
 \subsection{Model Selection via Relativistic Efficiency Analysis}
-Following the implementation of Version 2.1, a critical architectural crossroad was reached: choosing between a resource-intensive model with slightly higher accuracy (8 kernels, 324s training) and a cheaper model with faster training time but slightly lower accuracy (1 kernel, 57s training). 
+Following the implementation of Version 2.1, a critical architectural crossroad was reached: choosing between a resource-intensive model with slightly higher accuracy (8 kernels, 324s training) and a cheaper model with faster training time but slightly lower accuracy (1 kernel, 57s training).
 
 In machine learning, achieving an accuracy increase from 94\% to 96\% requires exponentially more computational effort than jumping from 10\% to 12\%. This diminishing return perfectly mirrors the principles of Special Relativity, where accelerating an object closer to the speed of light requires increasingly more energy. To formally evaluate model efficiency, an analytical method was developed adapting the relativistic kinetic energy equation:
 \begin{equation}
-E = \frac{mc^2}{\sqrt{1 - \frac{v^2}{c^2}}} - mc^2
+    E = \frac{mc^2}{\sqrt{1 - \frac{v^2}{c^2}}} - mc^2
 \end{equation}
 
 Within the context of neural network optimization, the variables are redefined as follows:
 \begin{itemize}
-    \item \textbf{Velocity ($v$)} represents the model's accuracy. Because an untrained model initialized with random weights naturally achieves a baseline 10\% accuracy on a 10-digit dataset, the raw accuracy is linearly normalized: 
-    \begin{equation}
-    v_{acc} = \frac{\text{Accuracy} - 0.1}{0.9}
-    \end{equation}
-    Here, a perfect 100\% accuracy translates to $v_{acc} = 1.0$, conceptually equivalent to the speed of light ($c$).
+    \item \textbf{Velocity ($v$)} represents the model's accuracy. Because an untrained model initialized with random weights naturally achieves a baseline 10\% accuracy on a 10-digit dataset, the raw accuracy is linearly normalized:
+          \begin{equation}
+              v_{acc} = \frac{\text{Accuracy} - 0.1}{0.9}
+          \end{equation}
+          Here, a perfect 100\% accuracy translates to $v_{acc} = 1.0$, conceptually equivalent to the speed of light ($c$).
     \item \textbf{Mass ($m$)} represents the baseline structural complexity or "action" of the number recognition task.
     \item \textbf{Energy ($E$)} represents the absolute computational cost of the model. In practical terms, this is quantified as: $\text{Parameter Size} \times \text{Run Time}$.
 \end{itemize}
@@ -266,7 +266,7 @@ Within the context of neural network optimization, the variables are redefined a
 Because the exact value of the conceptual mass ($m$) is unknown, absolute energy calculations for a single model are impossible. However, when comparing two distinct models, relative scaling can be employed. By calculating the theoretical relativistic energy ratio required to achieve Model B's accuracy compared to Model A's accuracy, and checking that against the \textit{actual} computational cost ratio, true efficiency can be determined. For instance, if Model B requires 10x more theoretical energy (due to higher accuracy) but only incurs 2x more actual computational cost, Model B is objectively the more energy-efficient architecture.
 
 \subsubsection{The "Escape Velocity" Constraint}
-A mathematical flaw in pure efficiency analysis is that an extremely cheap, low-accuracy model might appear mathematically optimal but remain practically useless. Drawing inspiration from rocket engineering, an "escape velocity" constraint was established. The absolute minimum baseline for a model to be considered viable is an accuracy of \textbf{90\%}. Any model failing to reach this escape velocity is automatically disqualified from selection, regardless of its theoretical efficiency. 
+A mathematical flaw in pure efficiency analysis is that an extremely cheap, low-accuracy model might appear mathematically optimal but remain practically useless. Drawing inspiration from rocket engineering, an "escape velocity" constraint was established. The absolute minimum baseline for a model to be considered viable is an accuracy of \textbf{90\%}. Any model failing to reach this escape velocity is automatically disqualified from selection, regardless of its theoretical efficiency.
 
 This relativistic analysis framework allows for highly objective, mathematically sound decisions when balancing model architecture tradeoffs, ensuring that added computational costs are truly justified by the resulting accuracy gains.
 
@@ -277,6 +277,6 @@ This relativistic analysis framework allows for highly objective, mathematically
 [Placeholder: Discuss the challenges faced when training without traditional gradient descent. What heuristics were discovered to speed up convergence?]
 
 \section{Conclusion}
-[Placeholder: Summarize the final outcomes of the project, whether the goals were fully met, and potential future improvements.]
+ [Placeholder: Summarize the final outcomes of the project, whether the goals were fully met, and potential future improvements.]
 
 \end{document}
