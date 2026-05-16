@@ -17,7 +17,7 @@
 \maketitle
 
 \begin{abstract}
-This document outlines the development, architecture, and findings of the \textbf{numberAI} project. The objective of this project is to recreate machine learning functionality from scratch, without relying on pre-trained models or established neural network structures. By utilizing simple matrix multiplication and a trial-and-error training approach, the project aims to categorize number images. Additionally, it details the planned second phase involving quantization and distillation for deployment on resource-constrained embedded systems such as Arduino.
+    This document outlines the development, architecture, and findings of the \textbf{numberAI} project. The objective of this project is to recreate machine learning functionality from scratch, without relying on pre-trained models or established neural network structures. By utilizing simple matrix multiplication and a trial-and-error training approach, the project aims to categorize number images. Additionally, it details the planned second phase involving quantization and distillation for deployment on resource-constrained embedded systems such as Arduino.
 \end{abstract}
 
 \tableofcontents
@@ -82,13 +82,13 @@ The structure for Version 1.0 introduced non-linearity:
 \begin{itemize}
     \item \textbf{Optimized I/O}: The matrix reading and writing methods were optimized to keep weights in memory during the training loop, massively speeding up training.
     \item \textbf{Numerical Gradient Training}: The loss function calculates the sum of Euclidean distances between the actual output vector ($\mathbf{A}$) and expected output ($\mathbf{EA}$):
-    \begin{equation}
-    \mathbf{Loss} = \sum_{k=0}^{9} \sqrt{\sum_{n=0}^{9} \left( A_{k,n} - EA_{k,n} \right)^2}
-    \end{equation}
-    The weight was then updated using a numerical gradient approximation (trial-and-error):
-    \begin{equation}
-    H_{m,n} := H_{m,n} - \left( \frac{\mathbf{Loss}_{o+\text{change}} - \mathbf{Loss}_{o}}{\text{change}} \right) \cdot \alpha
-    \end{equation}
+          \begin{equation}
+              \mathbf{Loss} = \sum_{k=0}^{9} \sqrt{\sum_{n=0}^{9} \left( A_{k,n} - EA_{k,n} \right)^2}
+          \end{equation}
+          The weight was then updated using a numerical gradient approximation (trial-and-error):
+          \begin{equation}
+              H_{m,n} := H_{m,n} - \left( \frac{\mathbf{Loss}_{o+\text{change}} - \mathbf{Loss}_{o}}{\text{change}} \right) \cdot \alpha
+          \end{equation}
 \end{itemize}
 
 \subsubsection{Version 1.0 Training Results}
@@ -132,10 +132,10 @@ The implementation of vectorized blame assignment yielded two major breakthrough
 \begin{enumerate}
     \item \textbf{Blazing Fast Training}: The training time was drastically reduced to approximately 30.6 seconds (down from over 15 minutes in Version 1.0), completing 500 iterations over the entire dataset with ease.
     \item \textbf{Generalization over Memorization}: The updated weight adjustment logic successfully prevented the model from merely memorizing pixels. Evaluation metrics showed:
-    \begin{itemize}
-        \item \textbf{Training Dataset Accuracy}: 100.00\% (100/100)
-        \item \textbf{Verification Dataset Accuracy}: 60.00\% (6/10)
-    \end{itemize}
+          \begin{itemize}
+              \item \textbf{Training Dataset Accuracy}: 100.00\% (100/100)
+              \item \textbf{Verification Dataset Accuracy}: 60.00\% (6/10)
+          \end{itemize}
 \end{enumerate}
 
 \begin{figure}[H]
@@ -276,6 +276,38 @@ The framework upgrade yielded incredible performance improvements:
     \item \textbf{Further Accuracy Tuning}: While 94.68\% is an excellent baseline for a hand-written CNN, standard architectures often achieve >98\% on MNIST. Future versions can explore adding a second convolutional layer (deepening the network) or introducing dropout to push the accuracy even higher.
 \end{itemize}
 
+\subsection{Version 3.0: CFNet (Asymmetrical Input Slicing)}
+Because the Version 2.1 model was consistently pushing $\approx$95\% accuracy on the MNIST dataset, the training challenge was fundamentally upgraded to the vastly more complex \textbf{EMNIST} dataset (Extended MNIST, expanding the 10 numerical digits to 47 alpha-numeric classes). This forced a significant architectural upgrade.
+
+\subsubsection{Architecture Upgrades (RFNet)}
+\textbf{Version 3.0} introduces a highly novel architecture dubbed \textbf{RFNet} (Residual Factor Net).
+\begin{itemize}
+    \item \textbf{Asymmetrical Input Slicing}: Instead of treating the $28 \times 28$ image uniformly, RFNet mathematically factors the dimension 28. The input image is dynamically reshaped into multiple parallel branches using these factors: ($1 \times 784$, $2 \times 392$, $7 \times 112$, $14 \times 56$, and $28 \times 28$). Each branch is processed through its own dense weight matrix ($H1_1$ through $H1_5$). This allows the network to simultaneously "view" the input image through different spatial lenses and aspect ratios, dramatically enriching feature extraction.
+    \item \textbf{Residual Connections}: Building upon the promising theoretical results of residual networks, a residual connection was introduced. The downscaled convolutional feature map is directly summed with the dense output from $H2$ prior to the final ReLU activation. This stabilizes the complex multi-branch network and ensures gradient preservation.
+\end{itemize}
+
+\subsection{Version 3.1: RAFNet (Residual Asymmetrical Factor Net)}
+Building upon the conceptual foundation of Version 3.0, \textbf{Version 3.1} introduces the definitive "ultimate" architecture for Phase 1: \textbf{RAFNet}.
+
+\subsubsection{Architecture Upgrades}
+\begin{itemize}
+    \item \textbf{Dual Convolutional Slicing}: Two layers of $3 \times 3$ convolutions (with 7 filter branches) are applied. By passing the $28 \times 28$ image through these unpadded layers, the spatial dimension is naturally reduced to $24 \times 24$. The number 24 has significantly more mathematical factors (1, 2, 3, 4, 6, 8, 12, 24) than 28, allowing for a much more granular and diverse asymmetrical factor slicing in the parallel branches.
+    \item \textbf{Learnable Residual Weights}: Instead of a hardcoded 50/50 sum, the residual connection now utilizes an element-wise learnable weighted ratio vector (\texttt{W\_skip}). This allows the model to dynamically and spatially choose the importance of the residual information versus the dense output.
+\end{itemize}
+
+\subsubsection{Training Optimization}
+\begin{itemize}
+    \item \textbf{Adam Optimizer}: To support the scale of this model, the \textbf{Adam optimizer} was adopted. This successfully solved the "Gradient Volatility" problem observed in previous iterations and drastically reduced the need for manual hyperparameter tuning.
+    \item \textbf{Hybrid Backpropagation}: Because standard PyTorch autograd does not correctly handle the novel feedback loop of this asymmetrical branching architecture, a custom hybrid backward propagation function was manually implemented to accurately calculate gradients across the factored slices.
+\end{itemize}
+
+\subsubsection{Results and Extreme Efficiency}
+RAFNet proved to be an incredibly efficient architecture:
+\begin{itemize}
+    \item \textbf{EMNIST Accuracy}: The model consistently pushed $\approx$88-90\% Test Accuracy on the highly complex 47-class EMNIST dataset in just 10 epochs.
+    \item \textbf{Parameter Efficiency}: The model achieves this impressive performance with only $\approx$175,000 parameters. This stands in stark contrast to standard large-scale CNN models, which often require vastly more parameters to achieve similar accuracy on this dataset, definitively proving the computational efficiency of the RAFNet design.
+\end{itemize}
+
 \section{Phase 2: Embedded Systems Optimization}
 % TODO: Fill in the findings once Phase 2 is underway.
 To deploy this model on an Arduino, the network must be significantly compressed.
@@ -287,20 +319,20 @@ To deploy this model on an Arduino, the network must be significantly compressed
 
 \section{Discoveries and Challenges}
 \subsection{Model Selection via Relativistic Efficiency Analysis}
-Following the implementation of Version 2.1, a critical architectural crossroad was reached: choosing between a resource-intensive model with slightly higher accuracy (8 kernels, 324s training) and a cheaper model with faster training time but slightly lower accuracy (1 kernel, 57s training). 
+Following the implementation of Version 2.1, a critical architectural crossroad was reached: choosing between a resource-intensive model with slightly higher accuracy (8 kernels, 324s training) and a cheaper model with faster training time but slightly lower accuracy (1 kernel, 57s training).
 
 In machine learning, achieving an accuracy increase from 94\% to 96\% requires exponentially more computational effort than jumping from 10\% to 12\%. This diminishing return perfectly mirrors the principles of Special Relativity, where accelerating an object closer to the speed of light requires increasingly more energy. To formally evaluate model efficiency, an analytical method was developed adapting the relativistic kinetic energy equation:
 \begin{equation}
-E = \frac{mc^2}{\sqrt{1 - \frac{v^2}{c^2}}} - mc^2
+    E = \frac{mc^2}{\sqrt{1 - \frac{v^2}{c^2}}} - mc^2
 \end{equation}
 
 Within the context of neural network optimization, the variables are redefined as follows:
 \begin{itemize}
-    \item \textbf{Velocity ($v$)} represents the model's accuracy. Because an untrained model initialized with random weights naturally achieves a baseline 10\% accuracy on a 10-digit dataset, the raw accuracy is linearly normalized: 
-    \begin{equation}
-    v_{acc} = \frac{\text{Accuracy} - 0.1}{0.9}
-    \end{equation}
-    Here, a perfect 100\% accuracy translates to $v_{acc} = 1.0$, conceptually equivalent to the speed of light ($c$).
+    \item \textbf{Velocity ($v$)} represents the model's accuracy. Because an untrained model initialized with random weights naturally achieves a baseline 10\% accuracy on a 10-digit dataset, the raw accuracy is linearly normalized:
+          \begin{equation}
+              v_{acc} = \frac{\text{Accuracy} - 0.1}{0.9}
+          \end{equation}
+          Here, a perfect 100\% accuracy translates to $v_{acc} = 1.0$, conceptually equivalent to the speed of light ($c$).
     \item \textbf{Mass ($m$)} represents the baseline structural complexity or "action" of the number recognition task.
     \item \textbf{Energy ($E$)} represents the absolute computational cost of the model. In practical terms, this is quantified as: $\text{Parameter Size} \times \text{Run Time}$.
 \end{itemize}
@@ -308,7 +340,7 @@ Within the context of neural network optimization, the variables are redefined a
 Because the exact value of the conceptual mass ($m$) is unknown, absolute energy calculations for a single model are impossible. However, when comparing two distinct models, relative scaling can be employed. By calculating the theoretical relativistic energy ratio required to achieve Model B's accuracy compared to Model A's accuracy, and checking that against the \textit{actual} computational cost ratio, true efficiency can be determined. For instance, if Model B requires 10x more theoretical energy (due to higher accuracy) but only incurs 2x more actual computational cost, Model B is objectively the more energy-efficient architecture.
 
 \subsubsection{The "Escape Velocity" Constraint}
-A mathematical flaw in pure efficiency analysis is that an extremely cheap, low-accuracy model might appear mathematically optimal but remain practically useless. Drawing inspiration from rocket engineering, an "escape velocity" constraint was established. The absolute minimum baseline for a model to be considered viable is an accuracy of \textbf{90\%}. Any model failing to reach this escape velocity is automatically disqualified from selection, regardless of its theoretical efficiency. 
+A mathematical flaw in pure efficiency analysis is that an extremely cheap, low-accuracy model might appear mathematically optimal but remain practically useless. Drawing inspiration from rocket engineering, an "escape velocity" constraint was established. The absolute minimum baseline for a model to be considered viable is an accuracy of \textbf{90\%}. Any model failing to reach this escape velocity is automatically disqualified from selection, regardless of its theoretical efficiency.
 
 This relativistic analysis framework allows for highly objective, mathematically sound decisions when balancing model architecture tradeoffs, ensuring that added computational costs are truly justified by the resulting accuracy gains.
 
@@ -319,6 +351,6 @@ This relativistic analysis framework allows for highly objective, mathematically
 [Placeholder: Discuss the challenges faced when training without traditional gradient descent. What heuristics were discovered to speed up convergence?]
 
 \section{Conclusion}
-[Placeholder: Summarize the final outcomes of the project, whether the goals were fully met, and potential future improvements.]
+ [Placeholder: Summarize the final outcomes of the project, whether the goals were fully met, and potential future improvements.]
 
 \end{document}

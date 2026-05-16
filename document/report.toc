@@ -26,12 +26,18 @@
 \contentsline {subsubsection}{\numberline {2.6.1}Architecture and Methodology Upgrades}{11}{subsubsection.2.6.1}%
 \contentsline {subsubsection}{\numberline {2.6.2}Version 2.1 Training Results}{11}{subsubsection.2.6.2}%
 \contentsline {subsubsection}{\numberline {2.6.3}Points to Solve in Next Iteration}{12}{subsubsection.2.6.3}%
-\contentsline {section}{\numberline {3}Phase 2: Embedded Systems Optimization}{12}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Quantization}{12}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Distillation}{12}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Discoveries and Challenges}{13}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Model Selection via Relativistic Efficiency Analysis}{13}{subsection.4.1}%
-\contentsline {subsubsection}{\numberline {4.1.1}The "Escape Velocity" Constraint}{13}{subsubsection.4.1.1}%
-\contentsline {subsection}{\numberline {4.2}Matrix Size Optimization}{14}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Trial and Error Efficiency}{14}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Conclusion}{14}{section.5}%
+\contentsline {subsection}{\numberline {2.7}Version 3.0: CFNet (Asymmetrical Input Slicing)}{12}{subsection.2.7}%
+\contentsline {subsubsection}{\numberline {2.7.1}Architecture Upgrades (RFNet)}{12}{subsubsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.8}Version 3.1: RAFNet (Residual Asymmetrical Factor Net)}{13}{subsection.2.8}%
+\contentsline {subsubsection}{\numberline {2.8.1}Architecture Upgrades}{13}{subsubsection.2.8.1}%
+\contentsline {subsubsection}{\numberline {2.8.2}Training Optimization}{13}{subsubsection.2.8.2}%
+\contentsline {subsubsection}{\numberline {2.8.3}Results and Extreme Efficiency}{13}{subsubsection.2.8.3}%
+\contentsline {section}{\numberline {3}Phase 2: Embedded Systems Optimization}{14}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Quantization}{14}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Distillation}{14}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Discoveries and Challenges}{14}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Model Selection via Relativistic Efficiency Analysis}{14}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}The "Escape Velocity" Constraint}{15}{subsubsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.2}Matrix Size Optimization}{15}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Trial and Error Efficiency}{15}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Conclusion}{15}{section.5}%

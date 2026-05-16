@@ -52,6 +52,7 @@ def save_model(model):
     np.savetxt(os.path.join(hidden_layer_dir, "H1_7.txt"), model.H1_7.data.numpy().reshape(-1, 1), fmt='%f')
     np.savetxt(os.path.join(hidden_layer_dir, "H2.txt"), model.H2.data.numpy(), fmt='%f')
     np.savetxt(os.path.join(hidden_layer_dir, "H3.txt"), model.H3.data.numpy(), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "residual.txt"), model.W_skip.data.numpy(), fmt='%f')
     print("Model saved to disk successfully.")
 
 def get_metrics(model, X, Y, batch_size=256):
@@ -60,17 +61,19 @@ def get_metrics(model, X, Y, batch_size=256):
     correct = 0
     total = len(X)
     
+    criterion_eval = nn.CrossEntropyLoss()
+    
     with torch.no_grad():
         for i in range(0, total, batch_size):
             X_batch = torch.tensor(X[i:i+batch_size])
             Y_batch = torch.tensor(Y[i:i+batch_size])
             
             A = model(X_batch)
-            loss = torch.mean(torch.sqrt(torch.sum((A - Y_batch)**2, dim=1))).item()
+            truths = torch.argmax(Y_batch, dim=1)
+            loss = criterion_eval(A, truths).item()
             losses.append(loss * len(X_batch))
             
             preds = torch.argmax(A, dim=1)
-            truths = torch.argmax(Y_batch, dim=1)
             correct += (preds == truths).sum().item()
             
     return sum(losses) / total, correct / total
@@ -124,11 +127,24 @@ print("Starting PyTorch training... Press Ctrl+C to stop early.")
 
 epochs = 100
 batch_size = 256
-learning_rate = 0.01
-optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+learning_rate = 0.001
 
-def custom_loss(A, Y):
-    return torch.mean(torch.sqrt(torch.sum((A - Y)**2, dim=1)))
+lr_conv1 = learning_rate
+lr_conv2 = learning_rate
+lr_H1 = learning_rate
+lr_H2 = learning_rate
+lr_H3 = learning_rate
+
+optimizer = optim.Adam([
+    {'params': model.conv1.parameters(), 'lr': lr_conv1},
+    {'params': model.conv2.parameters(), 'lr': lr_conv2},
+    {'params': [model.H1_1, model.H1_2, model.H1_3, model.H1_4, model.H1_5, model.H1_6, model.H1_7], 'lr': lr_H1},
+    {'params': [model.H2], 'lr': lr_H2},
+    {'params': [model.H3], 'lr': lr_H3},
+    {'params': [model.W_skip], 'lr': learning_rate}
+], lr=learning_rate)
+
+criterion = nn.CrossEntropyLoss()
 
 start_time = time.time()
 
@@ -145,10 +161,11 @@ try:
         for i in range(0, num_train, batch_size):
             X_batch = torch.tensor(x_train_shuffled[i:i+batch_size]).to(device)
             Y_batch = torch.tensor(y_train_shuffled[i:i+batch_size]).to(device)
+            Y_indices = torch.argmax(Y_batch, dim=1)
             
             optimizer.zero_grad()
             A = model(X_batch)
-            loss = custom_loss(A, Y_batch)
+            loss = criterion(A, Y_indices)
             loss.backward()
             
             # Check for exploding gradients
