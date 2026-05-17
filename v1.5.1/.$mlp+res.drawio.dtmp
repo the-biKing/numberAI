@@ -1,0 +1,75 @@
+<mxfile host="Electron">
+  <diagram id="EFKVLJ-YhMdlelMVhOAa" name="Page-1">
+    <mxGraphModel dx="1245" dy="883" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="4" edge="1" parent="1" source="2" style="edgeStyle=none;html=1;" target="3" value="flaten">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="input&lt;br&gt;matrix&lt;br&gt;28*28" vertex="1">
+          <mxGeometry height="80" width="80" x="10" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="13" edge="1" parent="1" source="3" style="edgeStyle=none;html=1;" target="12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="input vector&lt;br&gt;1x256" vertex="1">
+          <mxGeometry height="60" width="120" x="180" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="22" edge="1" parent="1" source="9" style="edgeStyle=none;html=1;" target="20" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="1x32&lt;br&gt;nuerons" vertex="1">
+          <mxGeometry height="80" width="80" x="550" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="14" edge="1" parent="1" source="11" style="edgeStyle=none;html=1;" target="12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="weight matrix&lt;br&gt;256x32" vertex="1">
+          <mxGeometry height="80" width="80" x="200" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="15" edge="1" parent="1" source="12" style="edgeStyle=none;html=1;" target="9" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="12" parent="1" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" value="multiply" vertex="1">
+          <mxGeometry height="80" width="120" x="370" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="21" edge="1" parent="1" source="16" style="edgeStyle=none;html=1;" target="20" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="29" edge="1" parent="1" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="16">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="585" as="sourcePoint" />
+            <mxPoint x="490" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="16" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="32x10&lt;br&gt;weight matrix" vertex="1">
+          <mxGeometry height="80" width="80" x="520" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="24" edge="1" parent="1" source="20" style="edgeStyle=none;html=1;" target="23" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="20" parent="1" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;fixedSize=1;rotation=0;html=1;direction=east;" value="multiply" vertex="1">
+          <mxGeometry height="80" width="120" x="690" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="26" edge="1" parent="1" source="23" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="11">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="585" />
+              <mxPoint x="240" y="585" />
+            </Array>
+            <mxPoint x="240" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="30" connectable="0" parent="26" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="backward&lt;br&gt;propagation" vertex="1">
+          <mxGeometry relative="1" x="-0.8823" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="23" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" value="10&lt;br&gt;output&lt;br&gt;neurons" vertex="1">
+          <mxGeometry height="80" width="80" x="940" y="270" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
