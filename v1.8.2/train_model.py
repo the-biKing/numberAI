@@ -37,6 +37,7 @@ H1_9_path = os.path.join(script_dir, "hiddenLayer", "H1_9.txt")
 H1_10_path = os.path.join(script_dir, "hiddenLayer", "H1_10.txt")
 H1_11_path = os.path.join(script_dir, "hiddenLayer", "H1_11.txt")
 H2_path = os.path.join(script_dir, "hiddenLayer", "H2.txt")
+H3_path = os.path.join(script_dir, "hiddenLayer", "H3.txt")
 
 if RESET:
     os.system(f"python {os.path.join(script_dir, 'reset_model.py')}")
@@ -55,12 +56,13 @@ try:
     H1_10 = np.loadtxt(H1_10_path)
     H1_11 = np.loadtxt(H1_11_path)
     H2 = np.loadtxt(H2_path)
+    H3 = np.loadtxt(H3_path)
 except OSError:
     print("Error: Could not find model weights. Please run reset_model.py first.")
     sys.exit(1)
 
 def forward_pass(X, H1_mat, H1_1_mat, H1_2_mat, H1_3_mat, H1_4_mat, H1_5_mat, H1_6_mat, 
-                 H1_7_mat, H1_8_mat, H1_9_mat, H1_10_mat, H1_11_mat, H2_mat):
+                 H1_7_mat, H1_8_mat, H1_9_mat, H1_10_mat, H1_11_mat, H2_mat, H3_mat):
     N = X.shape[0]
     
     O_H1 = np.dot(X, H1_mat)
@@ -117,9 +119,11 @@ def forward_pass(X, H1_mat, H1_1_mat, H1_2_mat, H1_3_mat, H1_4_mat, H1_5_mat, H1
                                O1_7_flat, O1_8_flat, O1_9_flat, O1_10_flat, O1_11_flat), axis=1)
     M1 = np.maximum(0, concat_O)
     
-    A = np.dot(M1, H2_mat) # (N, 47)
+    O_H2 = np.dot(M1, H2_mat)
+    M2 = np.maximum(0, O_H2)
+    A = np.dot(M2, H3_mat)
     
-    return O_H1, O1_1, O1_2, O1_3, O1_4, O1_5, O1_6, O1_7, O1_8, O1_9, O1_10, O1_11, M1, A
+    return O_H1, O1_1, O1_2, O1_3, O1_4, O1_5, O1_6, O1_7, O1_8, O1_9, O1_10, O1_11, M1, O_H2, M2, A
 
 def get_metrics(A_vals, expected):
     loss = np.mean(np.sqrt(np.sum((A_vals - expected)**2, axis=1)))
@@ -129,7 +133,7 @@ def get_metrics(A_vals, expected):
     return loss, acc
 
 def save_model(H1_mat, H1_1_mat, H1_2_mat, H1_3_mat, H1_4_mat, H1_5_mat, H1_6_mat, 
-               H1_7_mat, H1_8_mat, H1_9_mat, H1_10_mat, H1_11_mat, H2_mat):
+               H1_7_mat, H1_8_mat, H1_9_mat, H1_10_mat, H1_11_mat, H2_mat, H3_mat):
     np.savetxt(H1_path, H1_mat, fmt='%f')
     np.savetxt(H1_1_path, H1_1_mat, fmt='%f')
     np.savetxt(H1_2_path, H1_2_mat, fmt='%f')
@@ -143,6 +147,7 @@ def save_model(H1_mat, H1_1_mat, H1_2_mat, H1_3_mat, H1_4_mat, H1_5_mat, H1_6_ma
     np.savetxt(H1_10_path, H1_10_mat, fmt='%f')
     np.savetxt(H1_11_path, H1_11_mat, fmt='%f')
     np.savetxt(H2_path, H2_mat, fmt='%f')
+    np.savetxt(H3_path, H3_mat, fmt='%f')
     print("Model saved to disk successfully.")
 
 plt.ion()
@@ -200,6 +205,7 @@ best_H1_9 = copy.deepcopy(H1_9)
 best_H1_10 = copy.deepcopy(H1_10)
 best_H1_11 = copy.deepcopy(H1_11)
 best_H2 = copy.deepcopy(H2)
+best_H3 = copy.deepcopy(H3)
 
 print("Starting training with Mini-batch Backpropagation... Press Ctrl+C to stop early.")
 
@@ -207,6 +213,7 @@ epochs = 100
 batch_size = 256
 LR_H1 = 0.05
 LR_H2 = 0.05
+LR_H3 = 0.05
 
 start_time = time.time()
 
@@ -221,16 +228,22 @@ try:
             Y_batch = y_train_shuffled[i:i+batch_size]
             batch_n = len(X_batch)
             
-            O_H1, O1_1, O1_2, O1_3, O1_4, O1_5, O1_6, O1_7, O1_8, O1_9, O1_10, O1_11, M1, A = forward_pass(
-                X_batch, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7, H1_8, H1_9, H1_10, H1_11, H2)
+            O_H1, O1_1, O1_2, O1_3, O1_4, O1_5, O1_6, O1_7, O1_8, O1_9, O1_10, O1_11, M1, O_H2, M2, A = forward_pass(
+                X_batch, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7, H1_8, H1_9, H1_10, H1_11, H2, H3)
             
             error_vector = (A - Y_batch) / batch_n
             
-            dH2 = np.dot(M1.T, error_vector)
+            dH3 = np.dot(M2.T, error_vector)
             
-            hidden_error_m1 = np.dot(error_vector, H2.T)
-            relu_deriv = (M1 > 0).astype(float)
-            hidden_error_pre_relu = hidden_error_m1 * relu_deriv
+            hidden_error_m2 = np.dot(error_vector, H3.T)
+            relu_deriv_m2 = (M2 > 0).astype(float)
+            hidden_error_pre_relu_m2 = hidden_error_m2 * relu_deriv_m2
+            
+            dH2 = np.dot(M1.T, hidden_error_pre_relu_m2)
+            
+            hidden_error_m1 = np.dot(hidden_error_pre_relu_m2, H2.T)
+            relu_deriv_m1 = (M1 > 0).astype(float)
+            hidden_error_pre_relu = hidden_error_m1 * relu_deriv_m1
             
             dO_H1_flat = hidden_error_pre_relu[:, 0:28]
             dO1_1_flat = hidden_error_pre_relu[:, 28:56]
@@ -286,19 +299,20 @@ try:
             H1_10 -= LR_H1 * dH1_10
             H1_11 -= LR_H1 * dH1_11
             H2 -= LR_H2 * dH2
+            H3 -= LR_H3 * dH3
             
-            if np.isnan(np.sum(H2)):
+            if np.isnan(np.sum(H3)):
                 print(f"\nGradient explosion detected. Restoring last valid model.")
                 save_model(best_H1, best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H1_5, best_H1_6, 
-                           best_H1_7, best_H1_8, best_H1_9, best_H1_10, best_H1_11, best_H2)
+                           best_H1_7, best_H1_8, best_H1_9, best_H1_10, best_H1_11, best_H2, best_H3)
                 raise StopIteration
                 
-        _, _, _, _, _, _, _, _, _, _, _, _, _, train_A = forward_pass(x_train, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, 
-                                                                      H1_7, H1_8, H1_9, H1_10, H1_11, H2)
+        _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, train_A = forward_pass(x_train, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, 
+                                                                      H1_7, H1_8, H1_9, H1_10, H1_11, H2, H3)
         train_loss, train_acc = get_metrics(train_A, y_train)
         
-        _, _, _, _, _, _, _, _, _, _, _, _, _, test_A = forward_pass(x_test, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, 
-                                                                     H1_7, H1_8, H1_9, H1_10, H1_11, H2)
+        _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, test_A = forward_pass(x_test, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, 
+                                                                     H1_7, H1_8, H1_9, H1_10, H1_11, H2, H3)
         test_loss, test_acc = get_metrics(test_A, y_test)
         
         current_time = time.time() - start_time
@@ -353,13 +367,14 @@ try:
         best_H1_10 = copy.deepcopy(H1_10)
         best_H1_11 = copy.deepcopy(H1_11)
         best_H2 = copy.deepcopy(H2)
+        best_H3 = copy.deepcopy(H3)
         
 except StopIteration:
     pass
 except KeyboardInterrupt:
     print("\nTraining interrupted by user. Saving current valid model...")
     save_model(best_H1, best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H1_5, best_H1_6, 
-               best_H1_7, best_H1_8, best_H1_9, best_H1_10, best_H1_11, best_H2)
+               best_H1_7, best_H1_8, best_H1_9, best_H1_10, best_H1_11, best_H2, best_H3)
     plt.ioff()
     sys.exit(0)
 
@@ -369,17 +384,17 @@ print(f"Training completed in {total_time:.2f} seconds.")
 
 print("\nTraining loop finished. Saving final model...")
 save_model(best_H1, best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H1_5, best_H1_6, 
-           best_H1_7, best_H1_8, best_H1_9, best_H1_10, best_H1_11, best_H2)
+           best_H1_7, best_H1_8, best_H1_9, best_H1_10, best_H1_11, best_H2, best_H3)
 
 print("\n--- Final Test Set Evaluation ---")
-_, _, _, _, _, _, _, _, _, _, _, _, _, test_A = forward_pass(x_test, best_H1, best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H1_5, best_H1_6, 
-                                                             best_H1_7, best_H1_8, best_H1_9, best_H1_10, best_H1_11, best_H2)
+_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, test_A = forward_pass(x_test, best_H1, best_H1_1, best_H1_2, best_H1_3, best_H1_4, best_H1_5, best_H1_6, 
+                                                             best_H1_7, best_H1_8, best_H1_9, best_H1_10, best_H1_11, best_H2, best_H3)
 final_loss, final_acc = get_metrics(test_A, y_test)
 print(f"Test Accuracy: {final_acc*100:.2f}%")
 
 plt.ioff()
 print("Close the plot window to exit the script.")
-plt.savefig("v1.8.1_training_plot.png")
+plt.savefig("v1.8.2_training_plot.png")
 
 import csv
 csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "benchmark_results.csv")

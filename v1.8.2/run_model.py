@@ -14,7 +14,7 @@ MERGED_LOWERCASE = ['c', 'i', 'j', 'k', 'l', 'm', 'o', 'p', 's', 'u', 'v', 'w', 
 for c in MERGED_LOWERCASE:
     CHAR_TO_INDEX[c] = CHAR_TO_INDEX[c.upper()]
 
-def run_inference(image_path, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7, H1_8, H1_9, H1_10, H1_11, H2, quiet=False):
+def run_inference(image_path, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7, H1_8, H1_9, H1_10, H1_11, H2, H3, quiet=False):
     if not os.path.exists(image_path):
         return None
 
@@ -91,7 +91,9 @@ def run_inference(image_path, H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7, H1_8
                                O1_7_flat, O1_8_flat, O1_9_flat, O1_10_flat, O1_11_flat), axis=1)
     M1 = np.maximum(0, concat_O)
     
-    A = np.dot(M1, H2)
+    O_H2 = np.dot(M1, H2)
+    M2 = np.maximum(0, O_H2)
+    A = np.dot(M2, H3)
 
     predicted_digit = np.argmax(A)
     predicted_chars = EMNIST_CLASSES[predicted_digit] if predicted_digit < len(EMNIST_CLASSES) else str(predicted_digit)
@@ -115,8 +117,9 @@ if __name__ == "__main__":
     h1_10_path = os.path.join(script_dir, "hiddenLayer", "H1_10.txt")
     h1_11_path = os.path.join(script_dir, "hiddenLayer", "H1_11.txt")
     h2_path = os.path.join(script_dir, "hiddenLayer", "H2.txt")
+    h3_path = os.path.join(script_dir, "hiddenLayer", "H3.txt")
     
-    if not os.path.exists(h1_path) or not os.path.exists(h2_path):
+    if not os.path.exists(h1_path) or not os.path.exists(h2_path) or not os.path.exists(h3_path):
         print("Error: Model weights not found in hiddenLayer/. Run reset_model.py to initialize them.")
         sys.exit(1)
 
@@ -134,15 +137,16 @@ if __name__ == "__main__":
     H1_10 = np.loadtxt(h1_10_path)
     H1_11 = np.loadtxt(h1_11_path)
     H2 = np.loadtxt(h2_path)
+    H3 = np.loadtxt(h3_path)
     
-    total_params = H1.size + H1_1.size + H1_2.size + H1_3.size + H1_4.size + H1_5.size + H1_6.size + H1_7.size + H1_8.size + H1_9.size + H1_10.size + H1_11.size + H2.size
-    total_size_kb = (H1.nbytes + H1_1.nbytes + H1_2.nbytes + H1_3.nbytes + H1_4.nbytes + H1_5.nbytes + H1_6.nbytes + H1_7.nbytes + H1_8.nbytes + H1_9.nbytes + H1_10.nbytes + H1_11.nbytes + H2.nbytes) / 1024.0
+    total_params = H1.size + H1_1.size + H1_2.size + H1_3.size + H1_4.size + H1_5.size + H1_6.size + H1_7.size + H1_8.size + H1_9.size + H1_10.size + H1_11.size + H2.size + H3.size
+    total_size_kb = (H1.nbytes + H1_1.nbytes + H1_2.nbytes + H1_3.nbytes + H1_4.nbytes + H1_5.nbytes + H1_6.nbytes + H1_7.nbytes + H1_8.nbytes + H1_9.nbytes + H1_10.nbytes + H1_11.nbytes + H2.nbytes + H3.nbytes) / 1024.0
     print(f"Model Size: {total_params:,} parameters ({total_size_kb:.2f} KB)")
 
     # If an argument is provided, use that. Otherwise evaluate both datasets.
     if len(sys.argv) > 1:
         t0 = time.perf_counter()
-        run_inference(sys.argv[1], H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7, H1_8, H1_9, H1_10, H1_11, H2, quiet=False)
+        run_inference(sys.argv[1], H1, H1_1, H1_2, H1_3, H1_4, H1_5, H1_6, H1_7, H1_8, H1_9, H1_10, H1_11, H2, H3, quiet=False)
         t1 = time.perf_counter()
         print(f"Inference Time: {(t1 - t0) * 1000:.2f} ms")
     else:
@@ -214,7 +218,9 @@ if __name__ == "__main__":
                                        O1_7_flat, O1_8_flat, O1_9_flat, O1_10_flat, O1_11_flat), axis=1)
             M1 = np.maximum(0, concat_O)
             
-            A = np.dot(M1, H2)
+            O_H2 = np.dot(M1, H2)
+            M2 = np.maximum(0, O_H2)
+            A = np.dot(M2, H3)
 
             predicted_digit = np.argmax(A)
             true_label = np.argmax(y_sample[i])

@@ -20,7 +20,8 @@ H1_8 = np.random.randn(14, 2) * np.sqrt(2. / 14)
 H1_9 = np.random.randn(14, 2) * np.sqrt(2. / 14)
 H1_10 = np.random.randn(14, 2) * np.sqrt(2. / 14)
 H1_11 = np.random.randn(14, 2) * np.sqrt(2. / 14)
-H2 = np.random.randn(336, 47) * np.sqrt(2. / 336)
+H2 = np.random.randn(336, 112) * np.sqrt(2. / 336)
+H3 = np.random.randn(112, 47) * np.sqrt(2. / 112)
 
 # Save using the absolute paths
 np.savetxt(os.path.join(target_dir, "H1.txt"), H1)
@@ -36,9 +37,10 @@ np.savetxt(os.path.join(target_dir, "H1_9.txt"), H1_9)
 np.savetxt(os.path.join(target_dir, "H1_10.txt"), H1_10)
 np.savetxt(os.path.join(target_dir, "H1_11.txt"), H1_11)
 np.savetxt(os.path.join(target_dir, "H2.txt"), H2)
+np.savetxt(os.path.join(target_dir, "H3.txt"), H3)
 
 # Cleanup old files
-for old_file in ["H_conv.txt", "H3.txt"]:
+for old_file in ["H_conv.txt"]:
     p = os.path.join(target_dir, old_file)
     if os.path.exists(p):
         try: os.remove(p)
