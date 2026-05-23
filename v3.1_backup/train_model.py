@@ -53,12 +53,11 @@ if not load_weights(model, hidden_layer_dir):
     sys.exit(1)
 
 def save_model(model):
-    np.savetxt(os.path.join(hidden_layer_dir, "conv1.txt"), model.conv1.weight.data.cpu().numpy().reshape(-1, 9), fmt='%f')
-    np.savetxt(os.path.join(hidden_layer_dir, "conv2.txt"), model.conv2.weight.data.cpu().numpy().reshape(-1, 9), fmt='%f')
-    np.savetxt(os.path.join(hidden_layer_dir, "H1_trainable.txt"), model.H1_trainable.data.cpu().numpy().reshape(-1, 12), fmt='%f')
-    np.savetxt(os.path.join(hidden_layer_dir, "H1_fixed.txt"), model.H1_fixed.data.cpu().numpy().reshape(-1, 12), fmt='%f')
-    np.savetxt(os.path.join(hidden_layer_dir, "H2.txt"), model.H2.data.cpu().numpy(), fmt='%f')
-    np.savetxt(os.path.join(hidden_layer_dir, "H3.txt"), model.H3.data.cpu().numpy(), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "conv1.txt"), model.conv1.weight.data.numpy().reshape(-1, 9), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "conv2.txt"), model.conv2.weight.data.numpy().reshape(-1, 9), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "H1.txt"), model.H1.data.numpy().reshape(-1, 12), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "H2.txt"), model.H2.data.numpy(), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "H3.txt"), model.H3.data.numpy(), fmt='%f')
     print("Model saved to disk successfully.")
 
 def get_metrics(model, X, Y, batch_size=256):
@@ -101,8 +100,7 @@ lr_H3 = learning_rate
 optimizer = optim.Adam([
     {'params': model.conv1.parameters(), 'lr': lr_conv1},
     {'params': model.conv2.parameters(), 'lr': lr_conv2},
-    {'params': [model.H1_trainable], 'lr': lr_H1},
-    {'params': [model.H1_fixed], 'lr': lr_H1},
+    {'params': [model.H1], 'lr': lr_H1},
     {'params': [model.H2], 'lr': lr_H2},
     {'params': [model.H3], 'lr': lr_H3}
 ], lr=learning_rate)
@@ -191,5 +189,5 @@ with open(csv_path, mode='a', newline='') as f:
     writer = csv.writer(f)
     if not file_exists:
         writer.writerow(["Version", "Training Time (s)", "Final Loss", "Test Accuracy (%)"])
-    writer.writerow([ver + "_decoupled", round(total_time, 2), round(final_loss, 4), round(final_acc*100, 2)])
+    writer.writerow([ver, round(total_time, 2), round(final_loss, 4), round(final_acc*100, 2)])
 print(f"Results saved to {csv_path}")

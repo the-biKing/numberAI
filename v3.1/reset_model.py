@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import glob
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 hidden_layer_dir = os.path.join(script_dir, "hiddenLayer")
@@ -15,17 +16,34 @@ def init_and_save(shape, fan_in, filename):
     np.savetxt(os.path.join(hidden_layer_dir, filename), W.reshape(-1, W.shape[-1]), fmt='%f')
 
 print("Resetting v3.1 PyTorch model weights...")
-init_and_save((7, 1, 3, 3), 9, "conv1.txt")
-init_and_save((7, 1, 3, 3), 9, "conv2.txt")
-init_and_save((7*576, 24), 576, "H1_1.txt")
-init_and_save((7*288, 12), 288, "H1_2.txt")
-init_and_save((7*192, 8), 192, "H1_3.txt")
-init_and_save((7*96, 4), 96, "H1_4.txt")
-init_and_save((7*72, 3), 72, "H1_5.txt")
-init_and_save((7*48, 2), 48, "H1_6.txt")
-init_and_save((7*24, 1), 24, "H1_7.txt")
-init_and_save((24, 16), 24, "H2.txt")
-init_and_save((784, 47), 784, "H3.txt")
-np.savetxt(os.path.join(hidden_layer_dir, "residual.txt"), np.full(784, 0.5), fmt='%f')
+
+# Clean up old sliced weight files to avoid confusion
+for f in glob.glob(os.path.join(hidden_layer_dir, "*.txt")):
+    try:
+        os.remove(f)
+    except OSError:
+        pass
+
+# 1. conv1.txt (trainable) shape: (4, 1, 3, 3) (flattened to 4x9)
+std1 = np.sqrt(2.0 / 9)
+conv1_w = np.random.randn(4, 1, 3, 3) * std1
+np.savetxt(os.path.join(hidden_layer_dir, "conv1.txt"), conv1_w.reshape(-1, 9), fmt='%f')
+
+# 2. conv2.txt (trainable) shape: (4, 1, 3, 3) (flattened to 4x9)
+std2 = np.sqrt(2.0 / 9)
+conv2_w = np.random.randn(4, 1, 3, 3) * std2
+np.savetxt(os.path.join(hidden_layer_dir, "conv2.txt"), conv2_w.reshape(-1, 9), fmt='%f')
+
+# 3. H1_trainable.txt shape: (36 * 576, 12), with fan_in 576 (flattened to 20736x12)
+init_and_save((36 * 576, 12), 576, "H1_trainable.txt")
+
+# 4. H1_fixed.txt shape: (4 * 676, 12), with fan_in 676 (flattened to 2704x12)
+init_and_save((4 * 676, 12), 676, "H1_fixed.txt")
+
+# 5. H2.txt shape: (480, 128), with fan_in 480
+init_and_save((480, 128), 480, "H2.txt")
+
+# 6. H3.txt shape: (128, 47), with fan_in 128
+init_and_save((128, 47), 128, "H3.txt")
 
 print("Initialized model weights for v3.1 successfully.")

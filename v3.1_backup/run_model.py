@@ -5,7 +5,6 @@ import numpy as np
 import time
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 EMNIST_CLASSES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
                   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 
@@ -28,95 +27,58 @@ SLICES_CONFIG = [
     (576, 1, 1),
 ]
 
-# Fixed 3x3 kernels for fixed edge-detectors
-SOBEL_X = np.array([
-    [-1,  0,  1],
-    [-2,  0,  2],
-    [-1,  0,  1]
-], dtype=np.float32)
-
-SOBEL_Y = np.array([
-    [-1, -2, -1],
-    [ 0,  0,  0],
-    [ 1,  2,  1]
-], dtype=np.float32)
-
-SOBEL_DIAG1 = np.array([
-    [-2, -1,  0],
-    [-1,  0,  1],
-    [ 0,  1,  2]
-], dtype=np.float32)
-
-SOBEL_DIAG2 = np.array([
-    [ 0, -1, -2],
-    [ 1,  0, -1],
-    [ 2,  1,  0]
-], dtype=np.float32)
-
 class ModelV3_1(nn.Module):
     def __init__(self):
         super(ModelV3_1, self).__init__()
         import math
+        self.conv1 = nn.Conv2d(1, 7, kernel_size=3, padding=0, stride=1, bias=False)
+        self.conv2 = nn.Conv2d(7, 7, kernel_size=3, padding=0, stride=1, groups=7, bias=False)
         
-        # 1. Trainable conv stream
-        self.conv1 = nn.Conv2d(1, 4, kernel_size=3, padding=0, stride=1, bias=False)
-        self.conv2 = nn.Conv2d(4, 4, kernel_size=3, padding=0, stride=1, groups=4, bias=False)
-        
-        # 2. Fixed conv stream (registered as buffer)
-        sobel_kernels = np.stack([SOBEL_X, SOBEL_Y, SOBEL_DIAG1, SOBEL_DIAG2], axis=0) # shape (4, 3, 3)
-        self.register_buffer('fixed_weight', torch.tensor(sobel_kernels, dtype=torch.float32).unsqueeze(1)) # shape (4, 1, 3, 3)
-        
-        # 3. Hidden layer projections (H1)
-        # H1_trainable: Projects 36 channels (4 channels x 9 slices) from size 576 to 12.
-        self.H1_trainable = nn.Parameter(torch.randn(36, 576, 12) * math.sqrt(2.0 / 576))
-        # H1_fixed: Projects 4 fixed conv channels from size 676 (26x26) to 12.
-        self.H1_fixed = nn.Parameter(torch.randn(4, 676, 12) * math.sqrt(2.0 / 676))
-        
-        # 4. Dense representation projections
-        # H2 shape: Projects concatenated (36 + 4) * 12 = 480 features to 128.
-        self.H2 = nn.Parameter(torch.randn(480, 128) * math.sqrt(2.0 / 480))
-        # H3 shape: Projects 128 features to 47 EMNIST classes.
+        # H1 shape: (63, 576, 12). Projects each of the 63 sliced channels from 576 to 12.
+        self.H1 = nn.Parameter(torch.randn(63, 576, 12) * math.sqrt(2.0 / 576))
+        # H2 shape: (756, 128)
+        self.H2 = nn.Parameter(torch.randn(756, 128) * math.sqrt(2.0 / 756))
+        # H3 shape: (128, 47)
         self.H3 = nn.Parameter(torch.randn(128, 47) * math.sqrt(2.0 / 128))
         
     def forward(self, x):
         B = x.shape[0]
-        
-        # Stream 1: Trainable Conv and Slicing
         c1 = self.conv1(x)
-        c2 = self.conv2(c1) # shape (B, 4, 24, 24)
+        c2 = self.conv2(c1) # (B, 7, 24, 24)
         
+        # Generate the 15 dynamic pixel slicing signatures for all 7 channels -> 105 channels
         sliced_channels = []
         for I, D, J in SLICES_CONFIG:
-            c2_sliced = c2.view(B, 4, I, D).transpose(2, 3).reshape(B, 4, 576)
+            # Reshape, transpose, and flatten to obtain the distinct multiscale signature
+            c2_sliced = c2.view(B, 7, I, D).transpose(2, 3).reshape(B, 7, 576)
             sliced_channels.append(c2_sliced)
             
-        sliced_all = torch.cat(sliced_channels, dim=1) # shape (B, 36, 576)
-        o_trainable = torch.einsum('bci,cij->bcj', sliced_all, self.H1_trainable) # shape (B, 36, 12)
-        o_trainable = torch.relu(o_trainable)
+        # Concatenate along the channel dimension (dim=1) to get shape (B, 105, 576)
+        sliced_all = torch.cat(sliced_channels, dim=1)
         
-        # Stream 2: Fixed Conv Edge Detection
-        fixed_conv_out = F.conv2d(x, self.fixed_weight, padding=0, stride=1) # shape (B, 4, 26, 26)
-        fixed_flat = fixed_conv_out.reshape(B, 4, 676)
-        o_fixed = torch.einsum('bci,cij->bcj', fixed_flat, self.H1_fixed) # shape (B, 4, 12)
-        o_fixed = torch.relu(o_fixed)
+        # Channel-wise linear projection using torch.einsum:
+        # sliced_all: (B, 105, 576)
+        # self.H1: (105, 576, 12)
+        # Output o: (B, 105, 12)
+        o = torch.einsum('bci,cij->bcj', sliced_all, self.H1)
+        o = torch.relu(o)
         
-        # Concatenate Outputs
-        o_concat = torch.cat([o_trainable, o_fixed], dim=1) # shape (B, 40, 12)
-        o_flat = o_concat.reshape(B, 480)
+        # Flatten to shape (B, 756)
+        o_flat = o.reshape(B, 756)
         
-        # Classifier
+        # Dense layers H2 and H3
         h2 = torch.matmul(o_flat, self.H2)
         h2 = torch.relu(h2)
+        
         final_out = torch.matmul(h2, self.H3)
         return final_out
 
 def load_weights(model, hidden_layer_dir):
     try:
-        model.conv1.weight.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "conv1.txt")).reshape(4, 1, 3, 3), dtype=torch.float32)
-        model.conv2.weight.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "conv2.txt")).reshape(4, 1, 3, 3), dtype=torch.float32)
-        model.H1_trainable.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H1_trainable.txt")).reshape(36, 576, 12), dtype=torch.float32)
-        model.H1_fixed.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H1_fixed.txt")).reshape(4, 676, 12), dtype=torch.float32)
-        model.H2.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H2.txt")).reshape(480, 128), dtype=torch.float32)
+        model.conv1.weight.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "conv1.txt")).reshape(7, 1, 3, 3), dtype=torch.float32)
+        model.conv2.weight.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "conv2.txt")).reshape(7, 1, 3, 3), dtype=torch.float32)
+        model.H1.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H1.txt")).reshape(63, 576, 12), dtype=torch.float32)
+        model.H2.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H2.txt")).reshape(756, 128), dtype=torch.float32)
         model.H3.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H3.txt")).reshape(128, 47), dtype=torch.float32)
     except OSError:
         return False
@@ -182,9 +144,7 @@ if __name__ == "__main__":
         
         num_samples = 100
         indices = np.random.choice(len(x_test), num_samples, replace=False)
-        x_sample = x_test[indices].reshape(-1, 28, 28)
-        # Fix the orientation by transposing the H and W axes to upright
-        x_sample = np.transpose(x_sample, (0, 2, 1))
+        x_sample = x_test[indices]
         y_sample = y_test[indices]
         
         print(f"Evaluating {num_samples} random samples...")
