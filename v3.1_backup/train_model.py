@@ -9,38 +9,6 @@ import time
 import torchvision.transforms.functional as TF
 import random
 
-# Fixed 3x3 Gaussian Blur kernel for Step 1 (conv1)
-GAUSSIAN_BLUR = np.array([
-    [1/16, 2/16, 1/16],
-    [2/16, 4/16, 2/16],
-    [1/16, 2/16, 1/16]
-], dtype=np.float32)
-
-# Fixed 3x3 kernels for Step 2 (conv2)
-SOBEL_X = np.array([
-    [-1,  0,  1],
-    [-2,  0,  2],
-    [-1,  0,  1]
-], dtype=np.float32)
-
-SOBEL_Y = np.array([
-    [-1, -2, -1],
-    [ 0,  0,  0],
-    [ 1,  2,  1]
-], dtype=np.float32)
-
-SOBEL_DIAG1 = np.array([
-    [-2, -1,  0],
-    [-1,  0,  1],
-    [ 0,  1,  2]
-], dtype=np.float32)
-
-SOBEL_DIAG2 = np.array([
-    [ 0, -1, -2],
-    [ 1,  0, -1],
-    [ 2,  1,  0]
-], dtype=np.float32)
-
 RESET = True
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -144,14 +112,6 @@ start_time = time.time()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-# Enforce device-correct fixed weight tensors right after sending to device
-with torch.no_grad():
-    model.conv1.weight.data[3:, 0] = torch.tensor(GAUSSIAN_BLUR, dtype=torch.float32, device=device)
-    model.conv2.weight.data[3, 0] = torch.tensor(SOBEL_X, dtype=torch.float32, device=device)
-    model.conv2.weight.data[4, 0] = torch.tensor(SOBEL_Y, dtype=torch.float32, device=device)
-    model.conv2.weight.data[5, 0] = torch.tensor(SOBEL_DIAG1, dtype=torch.float32, device=device)
-    model.conv2.weight.data[6, 0] = torch.tensor(SOBEL_DIAG2, dtype=torch.float32, device=device)
-
 try:
     for epoch in range(epochs):
         model.train()
@@ -172,12 +132,6 @@ try:
             loss = criterion(A, Y_indices)
             loss.backward()
             
-            # Zero out gradients for the fixed channels to prevent weight updates
-            if model.conv1.weight.grad is not None:
-                model.conv1.weight.grad.data[3:] = 0.0
-            if model.conv2.weight.grad is not None:
-                model.conv2.weight.grad.data[3:] = 0.0
-            
             # Check for exploding gradients
             has_nan = False
             for param in model.parameters():
@@ -193,14 +147,6 @@ try:
                 raise StopIteration
                 
             optimizer.step()
-
-            # Reinforce fixed weights to counteract any optimizer modifications (momentum, running averages)
-            with torch.no_grad():
-                model.conv1.weight.data[3:, 0] = torch.tensor(GAUSSIAN_BLUR, dtype=torch.float32, device=device)
-                model.conv2.weight.data[3, 0] = torch.tensor(SOBEL_X, dtype=torch.float32, device=device)
-                model.conv2.weight.data[4, 0] = torch.tensor(SOBEL_Y, dtype=torch.float32, device=device)
-                model.conv2.weight.data[5, 0] = torch.tensor(SOBEL_DIAG1, dtype=torch.float32, device=device)
-                model.conv2.weight.data[6, 0] = torch.tensor(SOBEL_DIAG2, dtype=torch.float32, device=device)
                 
         # Calculate full train metrics
         model.to("cpu")
