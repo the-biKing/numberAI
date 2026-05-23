@@ -20,7 +20,7 @@ H1_8 = np.random.randn(14, 2) * np.sqrt(2. / 14)
 H1_9 = np.random.randn(14, 2) * np.sqrt(2. / 14)
 H1_10 = np.random.randn(14, 2) * np.sqrt(2. / 14)
 H1_11 = np.random.randn(14, 2) * np.sqrt(2. / 14)
-H2 = np.random.randn(336, 10) * np.sqrt(2. / 336)
+H2 = np.random.randn(336, 47) * np.sqrt(2. / 336)
 
 # Save using the absolute paths
 np.savetxt(os.path.join(target_dir, "H1.txt"), H1)

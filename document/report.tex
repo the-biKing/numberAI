@@ -140,7 +140,7 @@ The implementation of vectorized blame assignment yielded two major breakthrough
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{./image/trainv1.1.png}
+    \includegraphics[width=0.8\textwidth]{./image/trainV1.1.png}
     \caption{Version 1.1 Training Loss Progression}
     \label{fig:trainv1.1}
 \end{figure}
@@ -166,7 +166,7 @@ By training the model on the much larger and highly varied MNIST dataset, the mo
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{./image/trainv1.2.png}
+    \includegraphics[width=0.8\textwidth]{./image/trainV1.2.png}
     \caption{Version 1.2 Training Loss Progression}
     \label{fig:trainv1.2}
 \end{figure}
@@ -174,6 +174,48 @@ By training the model on the much larger and highly varied MNIST dataset, the mo
 \subsubsection{Points to Solve in Next Iteration}
 \begin{itemize}
     \item \textbf{Shifted Number Problem}: While the model performs well on centered digits, its reliance purely on fully connected dense layers means it is highly sensitive to spatial translation. If a number is shifted off-center, the model struggles to categorize it accurately. A mechanism to introduce translation invariance is required.
+\end{itemize}
+
+\subsection{Version 1.2.1 \& 1.4.1: Scaling to Full Resolution}
+To capture more detailed features, the input data was upgraded from the $16 \times 16$ MNIST subset back to the standard $28 \times 28$ resolution. 
+\begin{itemize}
+    \item \textbf{Architecture}: The input layer expanded from 256 to 784 neurons. Hidden layers were scaled up accordingly (e.g., $784 \to 36 \to 10$ for v1.2.1, and $784 \to 49 \to 10$ for v1.4.1).
+    \item \textbf{Result}: The larger input space allowed the network to retain finer edge details, slightly improving accuracy compared to the 16x16 downscaled images.
+\end{itemize}
+
+\subsection{Version 1.3 \& 1.4: Hybrid Pooling Experiment}
+While maintaining the $16 \times 16$ input, \textbf{Version 1.3} experimented with integrating a custom pooling operation alongside standard dense layers.
+\begin{itemize}
+    \item \textbf{Architecture}: The 256-pixel input was passed into a 16-neuron dense layer. Simultaneously, the raw $16 \times 16$ input underwent two passes of $2 \times 2$ max pooling, reducing it to a $4 \times 4$ grid (16 features). These pooled features were concatenated with the dense layer outputs, forming a 32-neuron bottleneck before the final classification layer.
+    \item \textbf{Result}: This hybrid approach attempted to force the network to utilize both spatial maximums and dense correlations, though it remained limited by the lack of sliding convolutions.
+\end{itemize}
+
+\subsection{Version 1.5 \& 1.5.1: Deep Neural Network Transition}
+To test the limits of the hand-written backpropagation algorithm, the architecture was significantly deepened in \textbf{Version 1.5}.
+\begin{itemize}
+    \item \textbf{Architecture}: The model transitioned from a single hidden layer to a three-hidden-layer topology ($784 \to 196 \to 49 \to 10$).
+    \item \textbf{Result}: This demonstrated that the custom blame assignment math could successfully chain gradients through multiple layers (Deep Learning) without encountering vanishing gradients, achieving an impressive test accuracy of over 97\%.
+\end{itemize}
+
+\subsection{Version 1.6 \& 1.7: The 4-Branch Architecture}
+To address the lack of spatial awareness inherent in simple dense layers, \textbf{Version 1.6} introduced a "Multi-Branch" topology. The input was processed through four parallel branches with varying dimensional reductions.
+\begin{itemize}
+    \item \textbf{Version 1.6 (Concatenation)}: The 4 branches (shapes: $784 \to 28$, $392 \to 14$, $112 \to 4$, $28 \to 1$) extracted features independently and concatenated them before the final output.
+    \item \textbf{Version 1.7 (Element-wise Summation)}: Iterating on v1.6, this version standardized the output of the 4 branches to be uniform ($1 \times 28$). Instead of concatenation, the 4 branches were summed element-wise into a single 28-dimension vector before the final layer.
+\end{itemize}
+
+\subsection{Version 1.8: 7-Branch Geometric Slicing}
+\textbf{Version 1.8} took the multi-branch concept further by physically slicing the $28 \times 28$ input into geometric regions, forcing different branches to specialize in different parts of the image.
+\begin{itemize}
+    \item \textbf{Architecture}: The image was sliced horizontally into four strips (each $28 \times 7$), passed through branches $H1\_1$ to $H1\_4$. Additionally, the top-center and bottom-center $14 \times 14$ regions were extracted and passed through branches $H1\_5$ and $H1\_6$. 
+    \item \textbf{Feature Aggregation}: Along with the full flattened image ($H1$), all 7 branches outputted 28 features each, which were concatenated to form a 196-dimension feature vector. This vector was then passed into $H2$ ($196 \to 10$).
+\end{itemize}
+
+\subsection{Version 1.8.1: 12-Branch Spatial Expansion}
+Building directly upon v1.8, \textbf{Version 1.8.1} drastically expanded the localized geometric feature extraction to capture the corners and absolute center of the image.
+\begin{itemize}
+    \item \textbf{Architecture Addition}: Five new branches ($H1\_7$ through $H1\_11$) were added. These branches specifically ingested $14 \times 14$ patches from the top-left, top-right, bottom-left, bottom-right, and absolute center of the $28 \times 28$ image. 
+    \item \textbf{Result}: Each of the 12 total branches outputted 28 features, creating a massive 336-dimension bottleneck layer ($12 \times 28 = 336$). The final layer ($H2$) was scaled to $336 \times 10$. This approach maximized spatial awareness and local structure recognition using purely dense matrix operations and slicing, avoiding the computational overhead of sliding convolution windows.
 \end{itemize}
 
 \subsection{Version 2.0: Introduction of Convolution}

@@ -9,10 +9,10 @@ RESET = True
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-print("Loading MNIST 28x28 dataset...")
-data_path = os.path.join(script_dir, "..", "mnist", "mnist_28x28.npz")
+print("Loading EMNIST 28x28 dataset...")
+data_path = os.path.join(script_dir, "..", "mnist", "emnist_28x28.npz")
 if not os.path.exists(data_path):
-    print("Error: Dataset not found. Run prepare_mnist.py first.")
+    print("Error: Dataset not found. Run prepare_emnist.py first.")
     sys.exit(1)
 
 data = np.load(data_path)
@@ -117,7 +117,7 @@ def forward_pass(X, H1_mat, H1_1_mat, H1_2_mat, H1_3_mat, H1_4_mat, H1_5_mat, H1
                                O1_7_flat, O1_8_flat, O1_9_flat, O1_10_flat, O1_11_flat), axis=1)
     M1 = np.maximum(0, concat_O)
     
-    A = np.dot(M1, H2_mat) # (N, 10)
+    A = np.dot(M1, H2_mat) # (N, 47)
     
     return O_H1, O1_1, O1_2, O1_3, O1_4, O1_5, O1_6, O1_7, O1_8, O1_9, O1_10, O1_11, M1, A
 
