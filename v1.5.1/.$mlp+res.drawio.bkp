@@ -7,7 +7,7 @@
         <mxCell id="4" edge="1" parent="1" source="2" style="edgeStyle=none;html=1;" target="3" value="flaten">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="2" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="input&lt;br&gt;matrix&lt;br&gt;28*28" vertex="1">
+        <mxCell id="2" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="input&lt;br&gt;matrix&lt;br&gt;16x16" vertex="1">
           <mxGeometry height="80" width="80" x="10" y="190" as="geometry" />
         </mxCell>
         <mxCell id="13" edge="1" parent="1" source="3" style="edgeStyle=none;html=1;" target="12" value="">

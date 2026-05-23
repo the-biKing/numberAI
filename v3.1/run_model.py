@@ -75,7 +75,6 @@ class ModelV3_1(nn.Module):
         self.H1_7 = nn.Parameter(torch.randn(7, 24, 1) * math.sqrt(2.0 / 24))
         self.H2 = nn.Parameter(torch.randn(24, 16) * math.sqrt(2.0 / 24))
         self.H3 = nn.Parameter(torch.randn(784, 47) * math.sqrt(2.0 / 784))
-        self.W_skip = nn.Parameter(torch.full((784,), 0.5, dtype=torch.float32))
         
     def forward(self, x):
         B = x.shape[0]
@@ -88,12 +87,8 @@ class ModelV3_1(nn.Module):
         h2_out = torch.matmul(h1_out, self.H2)
         h2_out = torch.relu(h2_out)
         
-        concat_res = h2_out.view(B, 784)
-        x_flat = x.view(B, 784)
-        out = self.W_skip * concat_res + (1.0 - self.W_skip) * x_flat
-        out = torch.relu(out)
-
-        
+        out = h2_out.view(B, 784)
+          
         final_out = torch.matmul(out, self.H3)
         return final_out
 
@@ -110,16 +105,6 @@ def load_weights(model, hidden_layer_dir):
         model.H1_7.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H1_7.txt")).reshape(7, 24, 1), dtype=torch.float32)
         model.H2.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H2.txt")), dtype=torch.float32)
         model.H3.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H3.txt")), dtype=torch.float32)
-        
-        residual_path = os.path.join(hidden_layer_dir, "residual.txt")
-        if os.path.exists(residual_path):
-            data = np.loadtxt(residual_path)
-            if data.size == 1:
-                model.W_skip.data = torch.full((784,), float(data), dtype=torch.float32)
-            else:
-                model.W_skip.data = torch.tensor(data.reshape(784), dtype=torch.float32)
-        else:
-            model.W_skip.data = torch.full((784,), 0.5, dtype=torch.float32)
     except OSError:
         return False
     return True
@@ -172,7 +157,7 @@ if __name__ == "__main__":
         t1 = time.perf_counter()
         print(f"Inference Time: {(t1 - t0) * 1000:.2f} ms")
     else:
-        npz_path = os.path.join(script_dir, "..", "emnist_28x28.npz")
+        npz_path = os.path.join(script_dir, "..", "mnist", "emnist_28x28.npz")
         if not os.path.exists(npz_path):
             print(f"Error: {npz_path} not found. Please run prepare_emnist.py first.")
             sys.exit(1)
