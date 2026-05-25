@@ -2,6 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{geometry}
@@ -286,26 +287,32 @@ Because the Version 2.1 model was consistently pushing $\approx$95\% accuracy on
     \item \textbf{Residual Connections}: Building upon the promising theoretical results of residual networks, a residual connection was introduced. The downscaled convolutional feature map is directly summed with the dense output from $H2$ prior to the final ReLU activation. This stabilizes the complex multi-branch network and ensures gradient preservation.
 \end{itemize}
 
-\subsection{Version 3.1: RAFNet (Residual Asymmetrical Factor Net)}
-Building upon the conceptual foundation of Version 3.0, \textbf{Version 3.1} introduces the definitive "ultimate" architecture for Phase 1: \textbf{RAFNet}.
+\subsection{Version 3.1: Decoupled Asymmetrical Factor Net (DAFNet)}
+Building upon the conceptual foundation of Version 3.0, \textbf{Version 3.1} introduces the definitive "ultimate" student architecture: the \textbf{Decoupled Asymmetrical Factor Net (DAFNet)}.
 
-\subsubsection{Architecture Upgrades}
+\subsubsection{Architecture Details}
+The DAFNet model is designed for maximum parameter and computational efficiency on embedded CPUs. It utilizes a parallel dual-stream feature extraction mechanism and contains exactly \textbf{317,608} parameters:
 \begin{itemize}
-    \item \textbf{Dual Convolutional Slicing}: Two layers of $3 \times 3$ convolutions (with 7 filter branches) are applied. By passing the $28 \times 28$ image through these unpadded layers, the spatial dimension is naturally reduced to $24 \times 24$. The number 24 has significantly more mathematical factors (1, 2, 3, 4, 6, 8, 12, 24) than 28, allowing for a much more granular and diverse asymmetrical factor slicing in the parallel branches.
-    \item \textbf{Learnable Residual Weights}: Instead of a hardcoded 50/50 sum, the residual connection now utilizes an element-wise learnable weighted ratio vector (\texttt{W\_skip}). This allows the model to dynamically and spatially choose the importance of the residual information versus the dense output.
+    \item \textbf{Trainable Convolution Stream (Stream 1)}:
+          \begin{itemize}
+              \item A standard $3 \times 3$ convolutional layer (\texttt{conv1}) maps the $28 \times 28$ grayscale image to 4 intermediate feature maps.
+              \item A depthwise $3 \times 3$ convolutional layer (\texttt{conv2}, with \texttt{groups=4}) processes the maps. Since both layers are unpadded, the spatial dimensions are naturally reduced to $24 \times 24$ (576 elements per map).
+          \end{itemize}
+    \item \textbf{Asymmetrical Factor Slicing}: 
+          The $24 \times 24$ spatial grid is reshaped and factored into $9$ parallel aspect ratio branches according to the configurations: $(1 \times 576)$, $(2 \times 288)$, $(4 \times 144)$, $(8 \times 72)$, $(24 \times 24)$, $(48 \times 12)$, $(96 \times 6)$, $(192 \times 3)$, and $(576 \times 1)$. Each sliced branch is flattened and projected via a trainable matrix \texttt{H1\_trainable} (shape $36 \times 576 \times 12$, spanning 4 channels $\times$ 9 configs = 36) to 12 features, followed by a ReLU activation.
+    \item \textbf{Fixed Edge-Detection Stream (Stream 2)}:
+          In parallel, the input image is convolved with 4 fixed $3 \times 3$ Sobel edge-detection kernels (Sobel X, Sobel Y, Diagonal 1, and Diagonal 2) registered as a buffer. This produces a $26 \times 26$ spatial grid, which is projected via \texttt{H1\_fixed} (shape $4 \times 26 \times 12$) to 12 features per channel, followed by a ReLU activation.
+    \item \textbf{Decoupled Design}:
+          To eliminate feedback loops and stabilize training, all residual connections from Version 3.0 have been completely removed, establishing a purely decoupled feedforward pipeline.
+    \item \textbf{Feature Fusion and Classifier Head}:
+          The outputs of Stream 1 ($36 \times 12 = 432$ features) and Stream 2 ($4 \times 12 = 48$ features) are concatenated along the channel dimension into a single 480-dimensional feature vector. This vector is passed to a dense classifier consisting of a hidden linear layer \texttt{H2} ($480 \times 128$) with a ReLU, and a final classification layer \texttt{H3} ($128 \times 47$) to map to the 47 EMNIST classes.
 \end{itemize}
 
-\subsubsection{Training Optimization}
+\subsubsection{Training and Results}
+DAFNet is optimized using the \textbf{Adam optimizer} over the EMNIST dataset.
 \begin{itemize}
-    \item \textbf{Adam Optimizer}: To support the scale of this model, the \textbf{Adam optimizer} was adopted. This successfully solved the "Gradient Volatility" problem observed in previous iterations and drastically reduced the need for manual hyperparameter tuning.
-    \item \textbf{Hybrid Backpropagation}: Because standard PyTorch autograd does not correctly handle the novel feedback loop of this asymmetrical branching architecture, a custom hybrid backward propagation function was manually implemented to accurately calculate gradients across the factored slices.
-\end{itemize}
-
-\subsubsection{Results and Extreme Efficiency}
-RAFNet proved to be an incredibly efficient architecture:
-\begin{itemize}
-    \item \textbf{EMNIST Accuracy}: The model consistently pushed $\approx$88-90\% Test Accuracy on the highly complex 47-class EMNIST dataset in just 10 epochs.
-    \item \textbf{Parameter Efficiency}: The model achieves this impressive performance with only $\approx$175,000 parameters. This stands in stark contrast to standard large-scale CNN models, which often require vastly more parameters to achieve similar accuracy on this dataset, definitively proving the computational efficiency of the RAFNet design.
+    \item \textbf{EMNIST Test Accuracy}: DAFNet achieves an outstanding EMNIST test accuracy of \textbf{89.06\%} in 10 epochs.
+    \item \textbf{Computational Efficiency}: Because it avoids self-attention or large dense layers during feature extraction, DAFNet is highly optimized for inference, taking only \textbf{0.64 ms per image} on a single CPU thread.
 \end{itemize}
 
 \section{Phase 2: Embedded Systems Optimization}
@@ -318,6 +325,35 @@ In this phase, we also conducted a critical research study comparing:
 \end{enumerate}
 
 This study formally evaluates whether direct aggressive quantization of a high-capacity model can bypass the need for knowledge distillation.
+
+\subsection{Teacher Model: High-Capacity WaveMix Architecture (\texttt{v4.0w})}
+To generate highly accurate soft labels for distilling knowledge into our lightweight student model, we developed a high-capacity teacher model (\texttt{v4.0w}) using the \textbf{WaveMix} architecture. WaveMix is an advanced neural network paradigm designed to replace resource-heavy self-attention mechanisms with parameter-free wave mixers, providing exceptional spatial inductive biases.
+
+\subsubsection{Architecture Details}
+The teacher model comprises exactly \textbf{1,012,348} parameters ($\approx 1\text{M}$ parameters) and is structured as follows:
+\begin{itemize}
+    \item \textbf{Initial Feature Projection}: The $28 \times 28$ grayscale input image is passed through a $3 \times 3$ standard convolutional layer with padding, followed by Batch Normalization and a GELU activation, mapping it to a spatial representation with a hidden dimension of $80$ channels.
+    \item \textbf{Deep WaveMix Backbone}: The core backbone consists of 5 sequential \textbf{WaveMix Blocks} that process the 80-channel feature maps:
+          \begin{enumerate}
+              \item \textbf{Layer 1}: Level-1 2D Discrete Haar Wavelet Transform (DWT). It losslessly downsamples spatial resolution by a factor of 2, expanding the spatial information into $4 \times 80 = 320$ channels.
+              \item \textbf{Layers 2--4}: Level-2 2D Haar DWT. These perform a multi-level decomposition by recursively decomposing the approximation subband and concatenating all resulting bands, creating $7 \times 80 = 560$ channels at a reduced spatial scale.
+              \item \textbf{Layer 5}: Level-1 2D Haar DWT (similar to Layer 1, expanding to 320 channels).
+          \end{enumerate}
+    \item \textbf{Intra-Block Processing}: Within each WaveMix block:
+          \begin{itemize}
+              \item Spatial token mixing is performed losslessly by the parameter-free 2D Haar DWT.
+              \item Channel mixing is performed by a channel MLP consisting of two $1 \times 1$ convolutions with a GELU activation, which acts on the wavelet bands.
+              \item The spatial resolution is restored using a parameter-free bilinear upsampling.
+              \item A $1 \times 1$ convolution projects the upsampled channels back to the base hidden dimension ($80$).
+              \item A learnable local depthwise spatial convolution ($3 \times 3$ with groups) is applied.
+              \item Batch Normalization and a residual connection are applied: $\mathbf{X}_{\text{out}} = \mathbf{X} + \text{BN}(\text{Conv}_{\text{dw}}(\mathbf{X}_{\text{proj}}))$.
+          \end{itemize}
+    \item \textbf{Global Average Pooling}: Instead of flattening the 80-channel feature map to a huge dense layer, a parameter-free 2D Global Average Pooling layer collapses the spatial dimensions completely to $1 \times 1 \times 80$.
+    \item \textbf{Classification Head}: A single tiny linear layer ($80 \times 47$) projects the pooled representation directly to EMNIST classes.
+\end{itemize}
+
+\subsubsection{Performance and Limitations}
+The teacher model achieves a peak test accuracy of \textbf{91.08\%} on the EMNIST dataset, demonstrating excellent representation capacity. However, due to its deep structure and complex wavelet/upsampling operations, it exhibits an inference latency of \textbf{12.24 ms per image} on CPU. This makes it too computationally expensive and memory-heavy for direct deployment on microcontrollers, thereby serving as the ideal candidate for knowledge distillation.
 
 \subsection{Knowledge Distillation}
 To bridge the accuracy gap of our optimized, decoupled student model (\texttt{v3.1}, 317,608 parameters) towards the state-of-the-art teacher model (\texttt{v4.0w}, 1,012,348 parameters), we implemented a soft-target PyTorch Knowledge Distillation framework.
