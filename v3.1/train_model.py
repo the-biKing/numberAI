@@ -87,7 +87,8 @@ if not load_weights(model, hidden_layer_dir):
 def save_model(model):
     np.savetxt(os.path.join(hidden_layer_dir, "conv1.txt"), model.conv1.weight.data.numpy().reshape(-1, 9), fmt='%f')
     np.savetxt(os.path.join(hidden_layer_dir, "conv2.txt"), model.conv2.weight.data.numpy().reshape(-1, 9), fmt='%f')
-    np.savetxt(os.path.join(hidden_layer_dir, "H1.txt"), model.H1.data.numpy().reshape(-1, 12), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "H1_trainable.txt"), model.H1_trainable.data.numpy().reshape(-1, 12), fmt='%f')
+    np.savetxt(os.path.join(hidden_layer_dir, "H1_fixed.txt"), model.H1_fixed.data.numpy().reshape(-1, 12), fmt='%f')
     np.savetxt(os.path.join(hidden_layer_dir, "H2.txt"), model.H2.data.numpy(), fmt='%f')
     np.savetxt(os.path.join(hidden_layer_dir, "H3.txt"), model.H3.data.numpy(), fmt='%f')
     print("Model saved to disk successfully.")
@@ -132,7 +133,8 @@ lr_H3 = learning_rate
 optimizer = optim.Adam([
     {'params': model.conv1.parameters(), 'lr': lr_conv1},
     {'params': model.conv2.parameters(), 'lr': lr_conv2},
-    {'params': [model.H1], 'lr': lr_H1},
+    {'params': [model.H1_trainable], 'lr': lr_H1},
+    {'params': [model.H1_fixed], 'lr': lr_H1},
     {'params': [model.H2], 'lr': lr_H2},
     {'params': [model.H3], 'lr': lr_H3}
 ], lr=learning_rate)
@@ -144,13 +146,7 @@ start_time = time.time()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-# Enforce device-correct fixed weight tensors right after sending to device
-with torch.no_grad():
-    model.conv1.weight.data[3:, 0] = torch.tensor(GAUSSIAN_BLUR, dtype=torch.float32, device=device)
-    model.conv2.weight.data[3, 0] = torch.tensor(SOBEL_X, dtype=torch.float32, device=device)
-    model.conv2.weight.data[4, 0] = torch.tensor(SOBEL_Y, dtype=torch.float32, device=device)
-    model.conv2.weight.data[5, 0] = torch.tensor(SOBEL_DIAG1, dtype=torch.float32, device=device)
-    model.conv2.weight.data[6, 0] = torch.tensor(SOBEL_DIAG2, dtype=torch.float32, device=device)
+
 
 try:
     for epoch in range(epochs):
@@ -172,11 +168,7 @@ try:
             loss = criterion(A, Y_indices)
             loss.backward()
             
-            # Zero out gradients for the fixed channels to prevent weight updates
-            if model.conv1.weight.grad is not None:
-                model.conv1.weight.grad.data[3:] = 0.0
-            if model.conv2.weight.grad is not None:
-                model.conv2.weight.grad.data[3:] = 0.0
+
             
             # Check for exploding gradients
             has_nan = False
@@ -194,13 +186,7 @@ try:
                 
             optimizer.step()
 
-            # Reinforce fixed weights to counteract any optimizer modifications (momentum, running averages)
-            with torch.no_grad():
-                model.conv1.weight.data[3:, 0] = torch.tensor(GAUSSIAN_BLUR, dtype=torch.float32, device=device)
-                model.conv2.weight.data[3, 0] = torch.tensor(SOBEL_X, dtype=torch.float32, device=device)
-                model.conv2.weight.data[4, 0] = torch.tensor(SOBEL_Y, dtype=torch.float32, device=device)
-                model.conv2.weight.data[5, 0] = torch.tensor(SOBEL_DIAG1, dtype=torch.float32, device=device)
-                model.conv2.weight.data[6, 0] = torch.tensor(SOBEL_DIAG2, dtype=torch.float32, device=device)
+
                 
         # Calculate full train metrics
         model.to("cpu")

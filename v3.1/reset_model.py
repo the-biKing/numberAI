@@ -50,36 +50,31 @@ SOBEL_DIAG2 = np.array([
 print("Resetting v3.1 PyTorch model weights...")
 
 # Clean up any old sliced weight files to avoid confusion
-for pattern in ["H1_*.txt", "H2_*.txt"]:
+for pattern in ["H1_*.txt", "H2_*.txt", "H1.txt", "H2.txt", "H3.txt", "conv1.txt", "conv2.txt"]:
     for f in glob.glob(os.path.join(hidden_layer_dir, pattern)):
         try:
             os.remove(f)
         except OSError:
             pass
 
-# conv1.txt shape: (7, 1, 3, 3) (flattened to 7x9)
+# conv1.txt shape: (4, 1, 3, 3) (flattened to 4x9)
 std1 = np.sqrt(2.0 / 9)
-conv1_w = np.random.randn(7, 1, 3, 3) * std1
-# Set channels 3-6 to fixed Gaussian Blur
-for c in range(3, 7):
-    conv1_w[c, 0] = GAUSSIAN_BLUR
+conv1_w = np.random.randn(4, 1, 3, 3) * std1
 np.savetxt(os.path.join(hidden_layer_dir, "conv1.txt"), conv1_w.reshape(-1, 9), fmt='%f')
 
-# conv2.txt shape: (7, 1, 3, 3) (flattened to 7x9)
+# conv2.txt shape: (4, 1, 3, 3) (flattened to 4x9)
 std2 = np.sqrt(2.0 / 9)
-conv2_w = np.random.randn(7, 1, 3, 3) * std2
-# Set channels 3-6 to Sobel X, Y, Diagonal 1, and Diagonal 2
-conv2_w[3, 0] = SOBEL_X
-conv2_w[4, 0] = SOBEL_Y
-conv2_w[5, 0] = SOBEL_DIAG1
-conv2_w[6, 0] = SOBEL_DIAG2
+conv2_w = np.random.randn(4, 1, 3, 3) * std2
 np.savetxt(os.path.join(hidden_layer_dir, "conv2.txt"), conv2_w.reshape(-1, 9), fmt='%f')
 
-# H1.txt shape: (63 * 576, 12), with fan_in 576 (flattened to 36288x12)
-init_and_save((63 * 576, 12), 576, "H1.txt")
+# H1_trainable.txt shape: (36 * 576, 12), with fan_in 576 (flattened to 20736x12)
+init_and_save((36 * 576, 12), 576, "H1_trainable.txt")
 
-# H2.txt shape: (756, 128), with fan_in 756
-init_and_save((756, 128), 756, "H2.txt")
+# H1_fixed.txt shape: (4 * 26, 12), with fan_in 26 (flattened to 104x12)
+init_and_save((4 * 26, 12), 26, "H1_fixed.txt")
+
+# H2.txt shape: (480, 128), with fan_in 480
+init_and_save((480, 128), 480, "H2.txt")
 
 # H3.txt shape: (128, 47), with fan_in 128
 init_and_save((128, 47), 128, "H3.txt")

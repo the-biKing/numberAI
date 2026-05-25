@@ -69,8 +69,8 @@ class ModelV3_1(nn.Module):
         # 3. Hidden layer projections (H1)
         # H1_trainable: Projects 36 channels (4 channels x 9 slices) from size 576 to 12.
         self.H1_trainable = nn.Parameter(torch.randn(36, 576, 12) * math.sqrt(2.0 / 576))
-        # H1_fixed: Projects 4 fixed conv channels from size 676 (26x26) to 12.
-        self.H1_fixed = nn.Parameter(torch.randn(4, 676, 12) * math.sqrt(2.0 / 676))
+        # H1_fixed: Projects 4 fixed conv channels from size 26x26 using a 26x12 weight matrix per channel to 12.
+        self.H1_fixed = nn.Parameter(torch.randn(4, 26, 12) * math.sqrt(2.0 / 26))
         
         # 4. Dense representation projections
         # H2 shape: Projects concatenated (36 + 4) * 12 = 480 features to 128.
@@ -96,8 +96,7 @@ class ModelV3_1(nn.Module):
         
         # Stream 2: Fixed Conv Edge Detection
         fixed_conv_out = F.conv2d(x, self.fixed_weight, padding=0, stride=1) # shape (B, 4, 26, 26)
-        fixed_flat = fixed_conv_out.reshape(B, 4, 676)
-        o_fixed = torch.einsum('bci,cij->bcj', fixed_flat, self.H1_fixed) # shape (B, 4, 12)
+        o_fixed = torch.einsum('bcxy,cyz->bcz', fixed_conv_out, self.H1_fixed) # shape (B, 4, 12)
         o_fixed = torch.relu(o_fixed)
         
         # Concatenate Outputs
@@ -115,7 +114,7 @@ def load_weights(model, hidden_layer_dir):
         model.conv1.weight.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "conv1.txt")).reshape(4, 1, 3, 3), dtype=torch.float32)
         model.conv2.weight.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "conv2.txt")).reshape(4, 1, 3, 3), dtype=torch.float32)
         model.H1_trainable.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H1_trainable.txt")).reshape(36, 576, 12), dtype=torch.float32)
-        model.H1_fixed.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H1_fixed.txt")).reshape(4, 676, 12), dtype=torch.float32)
+        model.H1_fixed.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H1_fixed.txt")).reshape(4, 26, 12), dtype=torch.float32)
         model.H2.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H2.txt")).reshape(480, 128), dtype=torch.float32)
         model.H3.data = torch.tensor(np.loadtxt(os.path.join(hidden_layer_dir, "H3.txt")).reshape(128, 47), dtype=torch.float32)
     except OSError:
