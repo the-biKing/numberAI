@@ -402,14 +402,16 @@ To evaluate the absolute necessity of knowledge distillation, we directly quanti
 
 \begin{table}[H]
     \centering
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{|l|c|c|c|c|r|}
         \hline
-        \textbf{Model Configuration} & \textbf{EMNIST Test Acc} & \textbf{Bit-Width} & \textbf{Parameter Count} & \textbf{Memory Size} & \textbf{CPU Latency} \\ \hline
+        \textbf{Model Architecture} & \textbf{EMNIST Acc} & \textbf{Bit-Width} & \textbf{Params} & \textbf{Memory Size} & \textbf{CPU Latency} \\ \hline
         Teacher Float32 (\texttt{v4.0w}) & 91.08\% & 32-bit Float & 1,012,348 & $\approx 4.05$ MB & 12.24 ms/img \\
         Quantized Teacher INT4 (\texttt{v4.0w\_q4}) & 86.76\% & 4-bit INT & 1,012,348 & $\approx 506.2$ KB & 12.24 ms/img \\
         Decoupled Student Float32 (\texttt{v3.1}) & 89.06\% & 32-bit Float & 317,608 & $\approx 1.27$ MB & 0.64 ms/img \\
         Distilled Student INT8 (\texttt{v3.1\_q8}) & \textbf{89.36\%} & 8-bit INT & \textbf{317,608} & \textbf{$\approx 317.6$ KB} & \textbf{0.64 ms/img} \\ \hline
-    \end{tabular}
+    \end{tabular}%
+    }
     \caption{Phase 2 Comparative Model Benchmarks}
     \label{tab:phase2_benchmarks}
 \end{table}
