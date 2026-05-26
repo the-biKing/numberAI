@@ -46,16 +46,16 @@ print("Dataset loaded successfully!")
 # ASCII Rendering Function
 def render_ascii(image_flat):
     image = image_flat.reshape(28, 28)
-    image_upright = np.transpose(image) # Transpose raw EMNIST to upright position
-    # Rotate the transposed image 90 degrees clockwise (k=-1)
-    #image_upright = np.rot90(np.transpose(image), k=-1)
+    # EMNIST dataset is already upright on disk. We render it directly without transpose!
+    image_display = image
+    
     chars = [" ", ".", ":", "-", "=", "+", "*", "#", "%", "@"]
     output = []
     output.append("+" + "-" * 56 + "+")
     for r in range(28):
         row_str = "|"
         for c in range(28):
-            val = image_upright[r, c]
+            val = image_display[r, c]
             char_idx = min(int(val * len(chars)), len(chars) - 1)
             row_str += chars[char_idx] * 2  # print twice to maintain aspect ratio
         row_str += "|"

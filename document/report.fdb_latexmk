@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1779709643.69358 "g:/code/numberAI/document/report.tex" "report.pdf" "report" 1779709645.04869 0
+["pdflatex"] 1779805844.62439 "g:/code/numberAI/document/report.tex" "report.pdf" "report" 1779805845.94197 0
   "C:/Users/joshh/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1778854667 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/joshh/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1200.pk" 1773387052 14064 b681637580207804834e5b5c67c0adf1 ""
   "C:/Users/joshh/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1773386965 13333487 5d33a7a9ebb17faffde2190e0138130f ""
@@ -93,17 +93,17 @@
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/refcount/refcount.sty" 1576433952 9878 9e94e8fa600d95f9c7731bb21dfb67a4 ""
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/rerunfilecheck/rerunfilecheck.sty" 1751104012 9684 a33a14b82ce60d6e77cb9be689d79ee6 ""
   "C:/Users/joshh/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "g:/code/numberAI/document/report.tex" 1779709643 41816 56a05a48452b275456ca102f6a6583a1 ""
+  "g:/code/numberAI/document/report.tex" 1779805844 42452 e55039c314e30ce218aa50f51e176ff5 ""
   "image/architectureV0.png" 1778400058 39542 25b1972d379a0d9dffbcbe9add6dd36d ""
   "image/architectureV2.png" 1778491855 149697 9fb9f5d3fe1f4f92ef61306721894699 ""
   "image/trainV1.1.png" 1778340215 48572 9c3bc111109ed89444510b5e92f5601d ""
   "image/trainV1.2.png" 1778474762 111262 f8df61419dd812c18465fb4ed08bbf55 ""
   "image/trainV1.png" 1778297505 48494 cc3d3322a7b548ec519270dfcf96340c ""
   "image/trainV2.1.png" 1778478723 103044 4372c82f7439aa6bc5e0d6572784b91b ""
-  "report.aux" 1779709644 9585 1e2ade3f92c634b7703ed3ecb92ff2e7 "pdflatex"
-  "report.out" 1779709644 12638 be41de819207184803306721a3eefae3 "pdflatex"
-  "report.tex" 1779709643 41816 56a05a48452b275456ca102f6a6583a1 ""
-  "report.toc" 1779709644 5598 d1b363e0722d22f45ae2b16fd1d1c6d9 "pdflatex"
+  "report.aux" 1779805845 9585 4c4693150aa2c71b97a9b8ac29c8b235 "pdflatex"
+  "report.out" 1779805845 12638 be41de819207184803306721a3eefae3 "pdflatex"
+  "report.tex" 1779805844 42452 e55039c314e30ce218aa50f51e176ff5 ""
+  "report.toc" 1779805845 5598 4007de56a663cdda8512577fee9495b8 "pdflatex"
   (generated)
   "report.aux"
   "report.log"

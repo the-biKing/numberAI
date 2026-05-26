@@ -37,3 +37,4 @@ v3.1,808.5,0.3026,89.06
 v3.1_distilled,9529.5,0.2958,89.35
 v3.1_distilled_quantized,0.0,0.2964,89.36
 v4.0w_quantized_int4,0.0,0.3951,86.76
+v3.1_quantized_baseline,0.0,0.303,89.07
