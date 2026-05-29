@@ -39,3 +39,6 @@ v3.1_distilled_quantized,0.0,0.2964,89.36
 v4.0w_quantized_int4,0.0,0.3951,86.76
 v3.1_quantized_baseline,0.0,0.303,89.07
 v2.1_emnist,7550.1,0.9763,11.47
+example_pytorch,1316.76,22.1305,95.59
+example_emnist_pytorch,574.96,1.1452,65.53
+example_emnist_pytorch_300k,2397.3,0.3243,88.48
